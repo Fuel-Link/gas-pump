@@ -1,0 +1,10 @@
+version: '3'
+services:
+  mosquitto:
+    build: .
+    container_name: mosquitto_client
+    ports:
+      - "2000:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
