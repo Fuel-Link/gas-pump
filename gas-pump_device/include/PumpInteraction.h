@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <Arduino.h>
+#include <DataTypes.h>
 
 /*
     ##########################################################################
@@ -15,17 +16,6 @@
 #define PUMP_ACTIVATED_WAITING_TIME_IN_SEC 60
 #define MAX_FUEL_SUPPLY_IN_LITERS 100
 #define MIN_FUEL_SUPPLY_IN_LITERS 1
-
-/*
-    ##########################################################################
-    ############             FUEL_TYPE declaration                ############
-    ##########################################################################
-*/
-enum FUEL_TYPE {
-    DIESEL,
-    PETROL,
-    LPG
-};
 
 /*
     ##########################################################################

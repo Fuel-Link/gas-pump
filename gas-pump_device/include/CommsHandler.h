@@ -4,7 +4,6 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiCredentials.h>
-#include <ArduinoJson.h>
 #include <ESPNtpClient.h>
 
 /*
@@ -14,6 +13,11 @@
 */
 //! Attention: Please refer to the Readme file as to configure the WiFi and MQTT credentials.
 
+//! MQTT defaults
+#define MODULE_NAME "gas-pump"
+#define DOWNLINK_CHANNEL "downlink"
+#define UPLINK_CHANNEL "uplink"
+
 //! NTP configurations
 #define SHOW_TIME_PERIOD 1000
 #define NTP_TIMEOUT 5000
@@ -21,7 +25,7 @@
 
 /*
     ##########################################################################
-    ############               CommsHandler declaration                 ############
+    ############            CommsHandler declaration              ############
     ##########################################################################
 */
 /*! \class CommsHandler
@@ -33,12 +37,11 @@ class CommsHandler {
     WiFiClient espClient;
     PubSubClient mqttClient;
 
-    //! URL or Host name of the API service
-    const char* IN_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/downlink";
-    const char* OUT_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/uplink";
-    const char* IMAGE_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/imageCaptured";
-    const char* THING_ID = "c5ae6b75-3da1-4cd3-b0c5-ff22fa509233";
-    const char* NAMESPACE = "org.eclipse.ditto";
+    //! MQTT configurations
+    String inTopic;
+    String outTopic;
+    String thingId;
+    String thingNamespace;
 
     //! NTP configurations
     const PROGMEM char* NTP_SERVER = "pool.ntp.org";
@@ -46,8 +49,12 @@ class CommsHandler {
     NTPEvent_t ntpEvent; // Last triggered event
 
    public:
-    //! \brief Constructor for CommsHandler class.
-    CommsHandler();
+    /**
+     *  \brief Constructor for CommsHandler class.
+     *  \param thingId Thing ID of the device.
+     *  \param thingNamespace Namespace of the device.
+    */
+    CommsHandler(String thingId, String thingNamespace);
 
     //! \brief Destructor for CommsHandler class.
     ~CommsHandler();
@@ -70,12 +77,12 @@ class CommsHandler {
     */
     boolean connected_to_mqtt();
 
-    /*! \brief Publish an image to the MQTT broker.
+    /*! \brief Publish a message to a topic in the MQTT broker.
         \param imageId Image ID.
         \param imageURL URL of the image.
         \return True if the image was published, false otherwise.
     */
-    bool publish_image(timeval& imageTime, String imageURL);
+    bool publish_message(String message);
 
     /*! \brief Callback function for MQTT messages. Present in the `main.cpp` file.
         \param topic Topic of the message.

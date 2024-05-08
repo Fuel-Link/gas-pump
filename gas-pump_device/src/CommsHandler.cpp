@@ -1,7 +1,12 @@
 #include <CommsHandler.h>
 
-CommsHandler::CommsHandler() 
-    : mqttClient(espClient) {}
+CommsHandler::CommsHandler(String thingId, String thingNamespace) 
+    : mqttClient(espClient) {
+    this->thingId = thingId;
+    this->thingNamespace = thingNamespace;
+    this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(DOWNLINK_CHANNEL);
+    this->outTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(UPLINK_CHANNEL);
+}
 
 CommsHandler::~CommsHandler() {}
 
@@ -40,7 +45,7 @@ boolean CommsHandler::connected_to_wifi(){
     Serial.println();
 
     while (!mqttClient.connected()) {
-        if (!mqttClient.connect(THING_ID)) {
+        if (!mqttClient.connect(thingId.c_str())) {
             Serial.print("Failed to connect to MQTT broker, rc=");
             Serial.print(mqttClient.state());
             Serial.println(" Retrying in 5 seconds");
@@ -52,7 +57,7 @@ boolean CommsHandler::connected_to_wifi(){
     Serial.println();
 
     // channels to Subscribe
-    mqttClient.subscribe(IN_TOPIC);
+    mqttClient.subscribe(inTopic.c_str());
 }
 
 boolean CommsHandler::connected_to_mqtt(){
@@ -124,7 +129,7 @@ void CommsHandler::initialize_ntp_client(){
 
 }
 
-bool CommsHandler::publish_image(timeval& imageTime, String imageURL) {
+bool CommsHandler::publish_message(String message) {
     if (!WiFi.isConnected()) {
         Serial.println("Error: WiFi not connected");
         return false;
@@ -135,30 +140,12 @@ bool CommsHandler::publish_image(timeval& imageTime, String imageURL) {
         return false;
     }
 
-    JsonDocument doc;
-    String thingId = NAMESPACE;
-    thingId += ":";
-    thingId += THING_ID;
-    doc["thingId"] = thingId;
-    doc["timestamp"] = get_time_string(imageTime);
-    doc["imageId"] = get_time_in_ms(imageTime);
-    doc["url"] = imageURL;
-
-    String topic = NAMESPACE;
-    topic += "/";
-    topic += thingId;
-    topic += "/things/twin/commands/create";
-    doc["topic"] = topic;
-
-    doc["path"] = "/features/imageCaptured/properties/";
-
-    String serializedDoc;
-    if(serializeJson(doc, serializedDoc) == 0){
-        Serial.println("Error: Failed to serialize JSON object");
+    if(message.length() == 0){
+        Serial.println("Error: The message is empty");
         return false;
     }
 
-    if(!mqttClient.publish(OUT_TOPIC, serializedDoc.c_str())){
+    if(!mqttClient.publish(outTopic.c_str(), message.c_str())){
         Serial.println("Error: Failed to publish image to MQTT broker");
         return false;
     }
