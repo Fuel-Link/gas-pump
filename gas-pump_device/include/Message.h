@@ -12,6 +12,7 @@ namespace Message {
      * \param authorization The authorization status
      * \param timestamp The timestamp of the message
      * \return The JSON document
+     * \note Message format not supposed to be created by the device, just here for reference
     */
     JsonDocument create_supply_authorized_message(String thingId, String thingNamespace, boolean authorization, String timestamp);
 
@@ -53,8 +54,8 @@ namespace Message {
 
     /**
      * \brief Serialize a JSON document
-     * \param doc The JSON document
-     * \param serializedDoc The serialized JSON document
+     * \param doc The JSON document to serialized
+     * \param serializedDoc The destination serialized JSON document
      * \return ESP_OK if the JSON document was serialized successfully, ESP_FAIL otherwise
     */
     esp_err_t serialize_message(JsonDocument& doc, String& serializedDoc);
@@ -62,7 +63,11 @@ namespace Message {
     /**
      * \brief Deserialize a JSON message
      * \param message The message to deserialize
+     * \param length The length of the message
+     * \param doc The destination JSON document
      * \return ESP_OK if the message was deserialized successfully, ESP_FAIL otherwise
     */
-    esp_err_t deserialize_message(String& message);
+    esp_err_t deserialize_message(char* message, size_t length,  JsonDocument& doc);
+
+    MESSAGE_TYPE get_message_type(JsonDocument& doc);
 }

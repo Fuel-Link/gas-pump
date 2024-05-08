@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <CommsHandler.h>
+#include <Message.h>
 
 /*
     ##########################################################################
@@ -46,14 +47,7 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
 
     // Allocate the JSON document
     JsonDocument doc;
-
-    // Parse JSON object
-    DeserializationError error = deserializeJson(doc, payload, length);
-    if (error) {
-        Serial.print(F("Error: deserializeJson() failed: "));
-        Serial.println(error.f_str());
-        return;
-    }
+    ESP_ERROR_CHECK(Message::deserialize_message((char*) payload, length, doc));
 
     // Extract values
     //Serial.println(F("Response:"));

@@ -30,6 +30,8 @@ esp_err_t PumpInteraction::unlock_pump(){
     digitalWrite(PUMP_STATUS_LED_PIN, HIGH);
     this->locked = PUMP_LOCKED;
 
+    Serial.println(" - Pump unlocked");
+
     return ESP_OK;
 }
 
@@ -39,6 +41,8 @@ esp_err_t PumpInteraction::lock_pump(){
 
     digitalWrite(PUMP_STATUS_LED_PIN, LOW);
     this->locked = PUMP_UNLOCKED;
+
+    Serial.println(" - Pump locked");
 
     return ESP_OK;
 }
@@ -53,6 +57,8 @@ esp_err_t PumpInteraction::set_stock(double stock){
     
     this->stock = stock;
 
+    Serial.println(" - Stock set to: " + String(stock) + "L");
+
     return ESP_OK;
 }
 
@@ -66,7 +72,7 @@ esp_err_t PumpInteraction::replenish_stock(uint32_t amount){
     return set_stock(currentCapacity + amount);
 }
 
-esp_err_t PumpInteraction::supply_fuel(double &suppliedAmmount){
+esp_err_t PumpInteraction::supply_fuel(double &suppliedAmount){
     if(stock < MIN_FUEL_SUPPLY_IN_LITERS)
         return ESP_FAIL;
 
@@ -75,6 +81,8 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmmount){
     unsigned long startTime = millis();
     bool buttonPressed = false;
 
+    Serial.println(" - Waiting for user to press button");
+
     // Waits x seconds for the user to press the button
     while (millis() - startTime < PUMP_ACTIVATED_WAITING_TIME_IN_SEC * 1000) {
         if (digitalRead(PUMP_BUTTON_PIN) == LOW) { // check if button is pressed
@@ -82,6 +90,14 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmmount){
             break; 
         }
     }
+
+    if(!buttonPressed){
+        ESP_ERROR_CHECK(lock_pump());
+        Serial.println(" - Button not pressed");
+        return ESP_OK;
+    }
+
+    Serial.println(" - Button pressed. Supplying fuel...");
 
     // Activate pump
     digitalWrite(PUMP_MOTOR_CONTROLLER_PIN, HIGH);
@@ -92,6 +108,8 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmmount){
     // Shutoff pump
     digitalWrite(PUMP_MOTOR_CONTROLLER_PIN, LOW);
 
+    Serial.println(" - Fuel supplied");
+
     // Register a random number, between 1 and half of the current stock, with max at 100
     uint32_t maxAmmount = get_stock() / 2;
     if(maxAmmount > MAX_FUEL_SUPPLY_IN_LITERS)
@@ -101,10 +119,12 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmmount){
     int randomInt = random(10000); 
     
     // Scale the random integer to the desired range of double numbers
-    suppliedAmmount = map(randomInt, 0, 9999, MIN_FUEL_SUPPLY_IN_LITERS * 10000, maxAmmount * 10000) / 10000.0;
+    suppliedAmount = map(randomInt, 0, 9999, MIN_FUEL_SUPPLY_IN_LITERS * 10000, maxAmmount * 10000) / 10000.0;
+
+    Serial.println(" - Supplied amount: " + String(suppliedAmount) + "L");
 
     // Decrement stock level
-    set_stock(get_stock() - suppliedAmmount);
+    set_stock(get_stock() - suppliedAmount);
 
     ESP_ERROR_CHECK(lock_pump());
 

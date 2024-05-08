@@ -84,11 +84,11 @@ class PumpInteraction {
 
     /**
      * \brief Handle a fuel supply from the pump
-     * \param suppliedAmmount The amount of fuel supplied. A reference to the variable should 
+     * \param suppliedAmount The amount of fuel supplied. A reference to the variable should 
      *      be supplied and will be updated with the amount of fuel, if the fuel was supplied successfully
      * \return ESP_OK if the fuel was supplied successfully, ESP_FAIL otherwise
     */
-    esp_err_t supply_fuel(double &suppliedAmmount); 
+    esp_err_t supply_fuel(double &suppliedAmount); 
 
     /**
      * \brief Get the fuel type of the pump
