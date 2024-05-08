@@ -9,6 +9,12 @@
 */
 #define PUMP_STATUS_LED_PIN 2
 #define PUMP_BUTTON_PIN 4
+#define PUMP_MOTOR_CONTROLLER_PIN 6
+#define PUMP_UNLOCKED 1
+#define PUMP_LOCKED 0
+#define PUMP_ACTIVATED_WAITING_TIME_IN_SEC 60
+#define MAX_FUEL_SUPPLY_IN_LITERS 100
+#define MIN_FUEL_SUPPLY_IN_LITERS 1
 
 /*
     ##########################################################################
@@ -32,7 +38,7 @@ enum FUEL_TYPE {
 class PumpInteraction {
    private:
     //!< Pump lock status
-    boolean locked = true;
+    boolean locked;
 
     //!< Fuel type
     FUEL_TYPE fuelType;
@@ -41,7 +47,7 @@ class PumpInteraction {
     uint32_t capacity;
 
     //!< Pump current volume
-    uint32_t stock;
+    double stock;
 
     //!< Mutex for pump lock
     esp_err_t unlock_pump();
@@ -58,8 +64,9 @@ class PumpInteraction {
     /**
      * \brief Set the stock of the pump
      * \param stock The stock of the pump
+     * \return ESP_OK if the stock was set successfully, ESP_FAIL otherwise
     */
-    void set_stock(uint32_t stock);
+    esp_err_t set_stock(double stock);
 
     /**
      * \brief Set the fuel type of the pump
@@ -91,7 +98,7 @@ class PumpInteraction {
      *      be supplied and will be updated with the amount of fuel, if the fuel was supplied successfully
      * \return ESP_OK if the fuel was supplied successfully, ESP_FAIL otherwise
     */
-    esp_err_t supply_fuel(uint32_t &suppliedAmmount); 
+    esp_err_t supply_fuel(double &suppliedAmmount); 
 
     /**
      * \brief Get the fuel type of the pump
