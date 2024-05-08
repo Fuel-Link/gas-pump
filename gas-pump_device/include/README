@@ -37,3 +37,37 @@ Read more about using header files in official GCC documentation:
 * Computed Includes
 
 https://gcc.gnu.org/onlinedocs/cpp/Header-Files.html
+
+# Configuring WiFi Credentials
+
+For increased protection, since this projects is supposed to be hosted online, 
+wifi credentials for the device should be present in a file named `WiFiCredentials.h`. 
+You should create this file in this directory, with the following sintax:
+
+```c++
+//! SSID of your internet WiFi
+const char WIFI_SSID[] = "YOUR_WIFI_SSID"; // CHANGE IT
+//! Password of your internet enabled WiFi network
+const char WIFI_PASSWORD[] = "YOUR_WIFI_PASSWORD"; // CHANGE IT
+//! IP address of the MQTT broker
+const char MQTT_SERVER_IP[] = "YOUR_MQTT_BROKER_IP_ADDRESS"; // CHANGE IT
+```
+
+# Connecting to Ditto
+
+Before flashing and starting the license plate reader, don't forget to first start 
+and run the Ditto successfully, by following guide in the respective directory. Consider the 
+**ThingID** obtained uppon creation of the *Thing* object. A **ThingID** is composed of two elements,
+the **ThingID** value itself and a **Namespace** where *Things* can belong two, in this 
+way making policies and modification simpler. The **ThingID** value is then composed in the format
+`Namespace:ThingID`. With this information, head over to the `CommsHandler.h` file and 
+paste the information, according to the following example:
+
+```c++
+//! URL or Host name of the API service
+const char* IN_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/downlink";
+const char* OUT_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/uplink";
+const char* IMAGE_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c5-ff22fa509233/imageCaptured";
+const char* THING_ID = "c5ae6b75-3da1-4cd3-b0c5-ff22fa509233";
+const char* NAMESPACE = "org.eclipse.ditto";
+```
