@@ -8,9 +8,9 @@
     ############                  Definitions                     ############
     ##########################################################################
 */
-#define PUMP_STATUS_LED_PIN 2
-#define PUMP_BUTTON_PIN 4
-#define PUMP_MOTOR_CONTROLLER_PIN 6
+#define PUMP_STATUS_LED_PIN 18
+#define PUMP_BUTTON_PIN 19
+#define PUMP_MOTOR_CONTROLLER_PIN 17
 #define PUMP_UNLOCKED 1
 #define PUMP_LOCKED 0
 #define PUMP_ACTIVATED_WAITING_TIME_IN_SEC 60
@@ -74,6 +74,12 @@ class PumpInteraction {
      * \brief Destructor for PumpInteraction class.
     */
     ~PumpInteraction();
+
+    /**
+     * \brief Initialize the pump
+     * \return ESP_OK if the pump was initialized successfully, ESP_FAIL otherwise
+    */
+    esp_err_t init_pump();
 
     /**
      * \brief Handle a repleshment (fuel) of the pump stock

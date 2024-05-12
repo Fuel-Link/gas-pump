@@ -6,11 +6,12 @@
     ##########################################################################
 */
 enum MESSAGE_TYPE {
-    SUPPLY_AUTHORIZED,
-    SUPPLY_COMPLETED,
-    FUEL_REPLENISHMENT,
-    SUPPLY_ERROR,
-    UNKNOWN
+    PUMP_INIT, //!< Sent by the pump to Ditto, for initialization
+    SUPPLY_AUTHORIZED,  //!< Sent by Ditto to the pump, to authorize a supply
+    SUPPLY_COMPLETED,   //!< Sent by the pump to Ditto, to confirm a supply
+    FUEL_REPLENISHMENT, //!< Sent by Ditto to the pump, to replenish fuel
+    SUPPLY_ERROR,    //!< Sent by the pump to Ditto, to report an error
+    UNKNOWN //!< Unknown/Error message type
 };
 
 /*

@@ -1,7 +1,11 @@
 #include <PumpInteraction.h>
 
 PumpInteraction::PumpInteraction(FUEL_TYPE fuelType, uint32_t capacity, uint32_t stock)
-    : fuelType(fuelType), capacity(capacity), stock(stock) {
+    : fuelType(fuelType), capacity(capacity), stock(stock) { }
+
+PumpInteraction::~PumpInteraction() { }
+
+esp_err_t PumpInteraction::init_pump(){
     // Configure pump status LED pin as output
     pinMode(PUMP_STATUS_LED_PIN, OUTPUT);
 
@@ -18,10 +22,8 @@ PumpInteraction::PumpInteraction(FUEL_TYPE fuelType, uint32_t capacity, uint32_t
     randomSeed(analogRead(0)); 
 
     // The Gas pump starts at locked
-    ESP_ERROR_CHECK(lock_pump());
+    return lock_pump();
 }
-
-PumpInteraction::~PumpInteraction() { }
 
 esp_err_t PumpInteraction::unlock_pump(){
     if(locked == PUMP_LOCKED)

@@ -13,7 +13,7 @@ JsonDocument Message::create_supply_authorized_message(String thingId, String th
     return doc;
 }
 
-JsonDocument Message::create_supply_completed_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double amount, double stock, int capacity, String timestamp){
+JsonDocument Message::create_supply_completed_message(String thingId, String thingNamespace, double amount, double stock, String timestamp){
     JsonDocument doc;
 
     doc["msgType"] = MESSAGE_TYPE::SUPPLY_COMPLETED;
@@ -21,15 +21,13 @@ JsonDocument Message::create_supply_completed_message(String thingId, String thi
     doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/supply_completed/properties/";
-    doc["fuelType"] = fuelType;
     doc["amount"] = amount;
     doc["stock"] = stock;
-    doc["capacity"] = capacity;
 
     return doc;
 }
 
-JsonDocument Message::create_fuel_replenishment_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double amount, double stock, int capacity, String timestamp){
+JsonDocument Message::create_fuel_replenishment_message(String thingId, String thingNamespace, double amount, double stock, String timestamp){
     JsonDocument doc;
 
     doc["msgType"] = MESSAGE_TYPE::FUEL_REPLENISHMENT;
@@ -37,10 +35,8 @@ JsonDocument Message::create_fuel_replenishment_message(String thingId, String t
     doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/fuel_replenishment/properties/";
-    doc["fuelType"] = fuelType;
     doc["amount"] = amount;
     doc["stock"] = stock;
-    doc["capacity"] = capacity;
 
     return doc;
 }
@@ -54,6 +50,21 @@ JsonDocument Message::create_supply_error_message(String thingId, String thingNa
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/supply_error/properties/";
     doc["error"] = error;
+
+    return doc;
+}
+
+JsonDocument Message::create_pump_init_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double stock, int capacity, String timestamp){
+    JsonDocument doc;
+
+    doc["msgType"] = MESSAGE_TYPE::PUMP_INIT;
+    doc["thingId"] = thingNamespace + ":" + thingId;
+    doc["timestamp"] = timestamp;
+    doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
+    doc["path"] = "/features/pump_init/properties/";
+    doc["fuelType"] = fuelType;
+    doc["stock"] = stock;
+    doc["capacity"] = capacity;
 
     return doc;
 }

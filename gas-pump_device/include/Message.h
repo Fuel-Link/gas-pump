@@ -20,27 +20,23 @@ namespace Message {
      * \brief Create a supply completed message
      * \param thingId The ID of the thing
      * \param thingNamespace The namespace of the thing
-     * \param fuelType The type of fuel
      * \param amount The amount of fuel supplied
      * \param stock The current stock of the pump
-     * \param capacity The capacity of the pump
      * \param timestamp The timestamp of the message
      * \return The JSON document
     */
-    JsonDocument create_supply_completed_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double amount, double stock, int capacity, String timestamp);
+    JsonDocument create_supply_completed_message(String thingId, String thingNamespace, double amount, double stock, String timestamp);
 
     /**
      * \brief Create a fuel replenishment message
      * \param thingId The ID of the thing
      * \param thingNamespace The namespace of the thing
-     * \param fuelType The type of fuel
      * \param amount The amount of fuel replenished
      * \param stock The current stock of the pump
-     * \param capacity The capacity of the pump
      * \param timestamp The timestamp of the message
      * \return The JSON document
     */
-    JsonDocument create_fuel_replenishment_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double amount, double stock, int capacity, String timestamp);
+    JsonDocument create_fuel_replenishment_message(String thingId, String thingNamespace, double amount, double stock, String timestamp);
 
     /**
      * \brief Create a supply error message
@@ -51,6 +47,18 @@ namespace Message {
      * \return The JSON document
     */
     JsonDocument create_supply_error_message(String thingId, String thingNamespace, String error, String timestamp);
+
+    /**
+     * \brief Create a pump init message
+     * \param thingId The ID of the thing
+     * \param thingNamespace The namespace of the thing
+     * \param fuelType The type of fuel
+     * \param stock The current stock of the pump
+     * \param capacity The capacity of the pump
+     * \param timestamp The timestamp of the message
+     * \return The JSON document
+    */
+    JsonDocument create_pump_init_message(String thingId, String thingNamespace, FUEL_TYPE fuelType, double stock, int capacity, String timestamp);
 
     /**
      * \brief Serialize a JSON document
