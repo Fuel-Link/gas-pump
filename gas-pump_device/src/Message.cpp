@@ -5,10 +5,10 @@ JsonDocument Message::create_supply_authorized_message(String thingId, String th
 
     doc["msgType"] = MESSAGE_TYPE::SUPPLY_AUTHORIZED;
     doc["thingId"] = thingNamespace + ":" + thingId;;
-    doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/authorize_supply/properties/";
     doc["authorization"] = String(authorization);
+        doc["timestamp"] = timestamp;
 
     return doc;
 }
@@ -18,11 +18,11 @@ JsonDocument Message::create_supply_completed_message(String thingId, String thi
 
     doc["msgType"] = MESSAGE_TYPE::SUPPLY_COMPLETED;
     doc["thingId"] = thingNamespace + ":" + thingId;
-    doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/supply_completed/properties/";
     doc["amount"] = amount;
     doc["stock"] = stock;
+    doc["timestamp"] = timestamp;
 
     return doc;
 }
@@ -32,11 +32,11 @@ JsonDocument Message::create_fuel_replenishment_message(String thingId, String t
 
     doc["msgType"] = MESSAGE_TYPE::FUEL_REPLENISHMENT;
     doc["thingId"] = thingNamespace + ":" + thingId;
-    doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/fuel_replenishment/properties/";
     doc["amount"] = amount;
     doc["stock"] = stock;
+    doc["timestamp"] = timestamp;
 
     return doc;
 }
@@ -46,10 +46,10 @@ JsonDocument Message::create_supply_error_message(String thingId, String thingNa
 
     doc["msgType"] = MESSAGE_TYPE::SUPPLY_ERROR;
     doc["thingId"] = thingNamespace + ":" + thingId;
-    doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/supply_error/properties/";
     doc["error"] = error;
+    doc["timestamp"] = timestamp;
 
     return doc;
 }
@@ -59,12 +59,12 @@ JsonDocument Message::create_pump_init_message(String thingId, String thingNames
 
     doc["msgType"] = MESSAGE_TYPE::PUMP_INIT;
     doc["thingId"] = thingNamespace + ":" + thingId;
-    doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/pump_init/properties/";
     doc["fuelType"] = fuelType;
     doc["stock"] = stock;
     doc["capacity"] = capacity;
+    doc["timestamp"] = timestamp;
 
     return doc;
 }

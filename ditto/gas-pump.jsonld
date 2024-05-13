@@ -1,0 +1,171 @@
+{
+    "@context": [
+		"https://www.w3.org/2022/wot/td/v1.1",
+		{
+			"om2": "http://www.ontology-of-units-of-measure.org/resource/om-2/",
+			"schema": "http://schema.org/"
+		}
+    ],
+    "@type": "tm:ThingModel",
+    "title": "Gas Pump",
+    "description": "A device tasked with locking, unlocking, monitoring and supplying fuel at the Gas Pump.",
+    "version": {
+     	 "model": "1.0.0"
+    },
+    "attributes": {
+		"deviceID": {
+			"title": "Device ID",
+			"type": "string",
+			"readOnly": true
+		},
+		"capacity": {
+			"title": "Capacity of the fuel tank",
+			"type": "number",
+			"unit": "schema:capacity"
+		},
+		"location": {
+			"title": "Location",
+			"type": "geo:point",
+			"description": "GPS coordinates of the mounted location (latitude, longitude)"
+		}
+	},
+	"features": {
+		"authorize_supply": {
+			"title": "Authorize Supply",
+			"description": "Event directed to the Pump, signalling that it's authorized to supply fuel to a vehicle.",
+			"properties": {
+				"timestamp": {
+					"title": "Timestamp",
+					"type": "string",
+					"format": "date-time",
+					"description": "Datetime when authorization was made."
+				},
+				"authorization": {
+					"title": "Authorization",
+					"type": "boolean",
+					"description": "Boolean signalling True, to concede authorization or False otherwise."
+				},
+				"msgType": {
+					"title": "Message type",
+					"type": "number",
+					"unit": "schema:msgType",
+					"description": "Type of the message."
+				}
+			}
+		},
+		"supply_completed": {
+			"title": "Supply Completed",
+			"description": "Event originating from the pump, indicating that the supply of the vehicle was conducted.",
+			"properties": {
+				"timestamp": {
+					"title": "Timestamp",
+					"type": "string",
+					"format": "date-time",
+					"description": "Datetime when supply was completed."
+				},
+				"amount": {
+					"title": "Amount",
+					"type": "double",
+					"unit": "schema:liters",
+					"description": "Number of liters supplied."
+				},
+				"stock": {
+					"title": "Stock",
+					"type": "number",
+					"unit": "schema:liters",
+					"description": "Current stock of fuel in the pump."
+				},
+				"msgType": {
+					"title": "Message type",
+					"type": "number",
+					"unit": "schema:msgType",
+					"description": "Type of the message."
+				}
+			}
+		},
+		"fuel_replenishment": {
+			"title": "Fuel Replenishment",
+			"description": "Event originating from the pump, indicating that the pump was replenished with fuel.",
+			"properties": {
+				"timestamp": {
+					"title": "Timestamp",
+					"type": "string",
+					"format": "date-time",
+					"description": "Datetime when pump was replenished."
+				},
+				"amount": {
+					"title": "Amount",
+					"type": "double",
+					"unit": "schema:liters",
+					"description": "Number of liters replenished."
+				},
+				"stock": {
+					"title": "Stock",
+					"type": "number",
+					"unit": "schema:liters",
+					"description": "Current stock of fuel in the pump."
+				},
+				"msgType": {
+					"title": "Message type",
+					"type": "number",
+					"unit": "schema:msgType",
+					"description": "Type of the message."
+				}
+			}
+		},
+		"supply_error": {
+			"title": "Supply Error",
+			"description": "Event originating from the pump, indicating that there was an error supplying the vehicle.",
+			"properties": {
+				"timestamp": {
+					"title": "Timestamp",
+					"type": "string",
+					"format": "date-time",
+					"description": "Datetime when pump was replenished."
+				},
+				"error": {
+					"title": "Error message",
+					"type": "string",
+					"description": "Reason of the Error."
+				},
+				"msgType": {
+					"title": "Message type",
+					"type": "number",
+					"unit": "schema:msgType",
+					"description": "Type of the message."
+				}
+			}
+		},
+		"pump_init": {
+			"title": "Pump Initialization",
+			"description": "Event originating from the pump, indicating that the pump was initialized.",
+			"properties": {
+				"timestamp": {
+					"title": "Timestamp",
+					"type": "string",
+					"format": "date-time",
+					"description": "Datetime when pump was initialized."
+				},
+				"stock": {
+					"title": "Stock",
+					"type": "number",
+					"unit": "schema:liters",
+					"description": "Current stock of fuel in the pump."
+				},
+				"capacity": {
+					"title": "Capacity",
+					"type": "number",
+					"unit": "schema:liters",
+					"description": "Maximum fuel capacity of the pump."
+				},
+				"msgType": {
+					"title": "Message type",
+					"type": "number",
+					"unit": "schema:msgType",
+					"description": "Type of the message."
+				}
+			}
+		}
+    }
+}
+  

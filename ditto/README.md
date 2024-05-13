@@ -32,7 +32,7 @@ Follow the next sub-sections in order, to properly configure the Ditto service.
 
 ## Creating the Plate Reader
 
-Based on the Linked-State JSON definition in the file `plate-reader.jsonld`, located in this directory, create the Ditto object to mirror our license-plate reader device using the following request. For that, in a terminal windows execute the following request, with `deviceID` as the name to give to the device (*hint*: use something referencible and unique):
+Based on the Linked-State JSON definition in the file `gas-pump.jsonld`, located in this directory, create the Ditto object to mirror our gas-pump device using the following request. For that, in a terminal windows execute the following request, with `deviceID` as the name to give to the device (*hint*: use something referencible and unique):
 
 ```bash
 curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
