@@ -4,8 +4,8 @@ CommsHandler::CommsHandler(String thingId, String thingNamespace)
     : mqttClient(espClient) {
     this->thingId = thingId;
     this->thingNamespace = thingNamespace;
-    this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + "_" + thingId + "/" + String(DOWNLINK_CHANNEL);
-    this->outTopic = String(MODULE_NAME) + "/" + thingNamespace + "-" + thingId + "/" + String(UPLINK_CHANNEL);
+    this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(DOWNLINK_CHANNEL);
+    this->outTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(UPLINK_CHANNEL);
 }
 
 CommsHandler::~CommsHandler() {}
@@ -54,13 +54,22 @@ boolean CommsHandler::connected_to_wifi(){
     }
 
     Serial.println(" - Connected to MQTT broker");
-    Serial.println();
 
     // channels to Subscribe
-    mqttClient.subscribe(inTopic.c_str());
+
+    if(!mqttClient.subscribe(inTopic.c_str())){
+        Serial.print("Error: Failed to subscribe to MQTT channel: ");
+        Serial.println(inTopic);
+        return;
+    }
+
+    Serial.print(" - Subscribed to MQTT channel: ");
+    Serial.println(inTopic);
+    Serial.println();
 }
 
 boolean CommsHandler::connected_to_mqtt(){
+    mqttClient.loop();
     return mqttClient.connected();
 }
 
@@ -145,8 +154,13 @@ bool CommsHandler::publish_message(const char* message, size_t length) {
         return false;
     }
 
-    Serial.println("Publishing message to MQTT broker");
+    Serial.print("Publishing message to MQTT broker: ");
+    Serial.print(" - Topic: "); 
+    Serial.println(outTopic);
+    Serial.print(" - Message: ");
     Serial.println(message);
+    Serial.print(" - Length: ");
+    Serial.println(length);
 
     if(!mqttClient.publish(outTopic.c_str(), message, length)){
         Serial.println("Error: Failed to publish message to MQTT broker");

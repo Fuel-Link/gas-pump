@@ -71,3 +71,7 @@ const char* IMAGE_TOPIC = "plate-reader/org.eclipse.ditto:c5ae6b75-3da1-4cd3-b0c
 const char* THING_ID = "c5ae6b75-3da1-4cd3-b0c5-ff22fa509233";
 const char* NAMESPACE = "org.eclipse.ditto";
 ```
+
+```bash
+mosquitto_pub -h localhost -p 1884 -t gas-pump/org.eclipse.ditto:gas-pump-uuid/downlink -m "{\"msgType\":1,\"thingId\":\"org.eclipse.ditto:gas-pump-uuid\",\"timestamp\":\"2024-05-13T16:14:18+0100\",\"topic\":\"org.eclipse.ditto/gas-pump-uuid/things/twin/commands/create\",\"path\":\"/features/authorize_supply/properties/\",\"authorization\": \"true\"}"
+```

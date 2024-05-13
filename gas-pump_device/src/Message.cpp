@@ -8,7 +8,7 @@ JsonDocument Message::create_supply_authorized_message(String thingId, String th
     doc["timestamp"] = timestamp;
     doc["topic"] = thingNamespace + "/" + thingId + "/things/twin/commands/create";
     doc["path"] = "/features/authorize_supply/properties/";
-    doc["authorization"] = authorization;
+    doc["authorization"] = String(authorization);
 
     return doc;
 }

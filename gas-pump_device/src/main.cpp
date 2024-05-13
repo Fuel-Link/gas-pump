@@ -86,15 +86,15 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
             //break;
     }
 
+    Serial.println();
+
     // Serialize the response message
     String serializedResponse;
     ESP_ERROR_CHECK(Message::serialize_message(response, serializedResponse));
 
     // Publish the response message
-    //comms.publish_message(serializedResponse.c_str(), serializedResponse.length());
-
-    Serial.println(" - Response published");
-    Serial.println();
+    comms.publish_message(serializedResponse.c_str(), serializedResponse.length());
+    
 }
 
 /*
@@ -124,8 +124,6 @@ void announce_pump(){
     // Publish the pump init message
     comms.publish_message(serializedPumpInitMessage.c_str(), serializedPumpInitMessage.length());
 
-    Serial.println("Pump initialized");
-    Serial.println();
 }
 
 void setup() {
@@ -145,6 +143,7 @@ void setup() {
 
     // Setup Pump Interaction
     ESP_ERROR_CHECK(pump.init_pump());
+    Serial.println();
 
     // Announce the gas pump operation to Ditto
     announce_pump();
