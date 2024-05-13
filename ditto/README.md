@@ -36,11 +36,11 @@ Based on the Linked-State JSON definition in the file `gas-pump.jsonld`, located
 
 ```bash
 curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
-    "title": "My Plate Reader",
-    "description": "ALPR device",  
-    "definition": "http://raw.githubusercontent.com/Fuel-Link/license_plate_recognition/main/ditto/plate-reader.jsonld",
+    "title": "Gas Pump",
+    "description": "Gas Pump controller device",  
+    "definition": "https://github.com/Fuel-Link/gas-pump/blob/main/ditto/gas-pump.jsonld",
     "attributes": {
-        "deviceID": "plate_reader_1234"
+        "deviceID": "gas_pump_1234"
     }
 }' 'http://localhost:8080/api/2/things'
 ```
@@ -54,31 +54,10 @@ The device can also be created with other attributes to better identify it's cap
 			"type": "string",
 			"readOnly": true
 		},
-		"fieldOfView": {
-			"title": "Field of View",
-			"type": "object",
-			"properties": {
-			"horizontalAngle": {
-				"title": "Horizontal Angle",
-				"type": "number",
-				"unit": "om2:Degree"
-			},
-			"verticalAngle": {
-				"title": "Vertical Angle",
-				"type": "number",
-				"unit": "om2:Degree"
-			}
-			}
-		},
-		"cameraResolution": {
-			"title": "Camera Resolution",
+		"capacity": {
+			"title": "Capacity of the fuel tank",
 			"type": "number",
-			"unit": "schema:Megapixel"
-		},
-		"imageCaptureRate": {
-			"title": "Image Capture Rate",
-			"type": "number",
-			"unit": "schema:FramePerSecond"
+			"unit": "schema:capacity"
 		},
 		"location": {
 			"title": "Location",
@@ -89,7 +68,7 @@ The device can also be created with other attributes to better identify it's cap
 (...)
 ```
 
-Creating the Plate object will output it's generated **ThingID**, annotates this value. which is in format `org.eclipse.ditto:<Generated_Thing>`, since this value will be placed in the ESP32 License Plate Reader, for it's identification the Ditto Service.
+Creating the Plate object will output it's generated **ThingID** (annotate this value), which is in format `org.eclipse.ditto:<Generated_Thing>`, since this value will be placed in the ESP32 License Plate Reader, for it's identification the Ditto Service.
 
 ## Connecting to MQTT
 
@@ -115,7 +94,7 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             "sources": [
                 {
                 "addresses": [
-                    "plate-reader/+/uplink/#"
+                    "gas_pump/+/uplink/#"
                 ],
                 "qos": 0,
                 "authorizationContext": [
@@ -126,7 +105,7 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             ],
             "targets": [
                 {
-                "address": "plate-reader-evaluation/{{ thing:id }}/downlink",
+                "address": "gas_pump/{{ thing:id }}/downlink",
                 "topics": [
                     "_/_/things/twin/events",
                     "_/_/things/live/messages"
