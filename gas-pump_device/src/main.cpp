@@ -91,7 +91,7 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
     ESP_ERROR_CHECK(Message::serialize_message(response, serializedResponse));
 
     // Publish the response message
-    comms.publish_message(serializedResponse);
+    //comms.publish_message(serializedResponse.c_str(), serializedResponse.length());
 
     Serial.println(" - Response published");
     Serial.println();
@@ -122,7 +122,7 @@ void announce_pump(){
     ESP_ERROR_CHECK(Message::serialize_message(pumpInitMessage, serializedPumpInitMessage));
 
     // Publish the pump init message
-    comms.publish_message(serializedPumpInitMessage);
+    comms.publish_message(serializedPumpInitMessage.c_str(), serializedPumpInitMessage.length());
 
     Serial.println("Pump initialized");
     Serial.println();

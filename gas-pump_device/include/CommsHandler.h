@@ -78,11 +78,11 @@ class CommsHandler {
     boolean connected_to_mqtt();
 
     /*! \brief Publish a message to a topic in the MQTT broker.
-        \param imageId Image ID.
-        \param imageURL URL of the image.
-        \return True if the image was published, false otherwise.
+        \param message a Pointer to the message to be published.
+        \param length Length of the message.
+        \return True if the message was published, false otherwise.
     */
-    bool publish_message(String message);
+    bool publish_message(const char* message, size_t length);
 
     /*! \brief Callback function for MQTT messages. Present in the `main.cpp` file.
         \param topic Topic of the message.

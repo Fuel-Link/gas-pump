@@ -57,7 +57,7 @@ boolean CommsHandler::connected_to_wifi(){
     Serial.println();
 
     // channels to Subscribe
-    mqttClient.subscribe(IN_TOPIC);
+    mqttClient.subscribe(inTopic.c_str());
 }
 
 boolean CommsHandler::connected_to_mqtt(){
@@ -129,7 +129,7 @@ void CommsHandler::initialize_ntp_client(){
 
 }
 
-bool CommsHandler::publish_message(String message) {
+bool CommsHandler::publish_message(const char* message, size_t length) {
     if (!WiFi.isConnected()) {
         Serial.println("Error: WiFi not connected");
         return false;
@@ -140,17 +140,15 @@ bool CommsHandler::publish_message(String message) {
         return false;
     }
 
-    if(message.length() == 0){
+    if(length == 0){
         Serial.println("Error: The message is empty");
         return false;
     }
 
-    if(!mqttClient.publish(outTopic.c_str(), message.c_str())){
-        Serial.println("Error: Failed to publish message to MQTT broker");
-        //return false;
-    }
+    Serial.println("Publishing message to MQTT broker");
+    Serial.println(message);
 
-    if(!mqttClient.publish(outTopic.c_str(), "hey there!")){
+    if(!mqttClient.publish(outTopic.c_str(), message, length)){
         Serial.println("Error: Failed to publish message to MQTT broker");
         return false;
     }
