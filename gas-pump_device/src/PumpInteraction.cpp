@@ -24,10 +24,6 @@ esp_err_t PumpInteraction::init_pump(){
     digitalWrite(PUMP_CONTROL_RELAY_PIN, LOW);
     Serial.println(" - Pump relay motor pin set to off");
 
-    // Initialize random number generator with analog pin 34
-    randomSeed(analogRead(34)); 
-    Serial.println(" - Random number generator initialized");
-
     // The Gas pump starts at locked
     return lock_pump();
 }
@@ -112,25 +108,16 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmount){
     digitalWrite(PUMP_CONTROL_RELAY_PIN, HIGH);
 
     // Wait for the user to stop using the button
-    while(digitalRead(PUMP_BUTTON_PIN) == HIGH);
+    while(digitalRead(PUMP_BUTTON_PIN) == HIGH){
+        suppliedAmount += 0.008;
+        Serial.print("\r - Supplied amount: " + String(suppliedAmount) + "L");
+    }
+    Serial.println();
 
     // Shutoff pump
     digitalWrite(PUMP_CONTROL_RELAY_PIN, LOW);
 
     Serial.println(" - Fuel supplied");
-
-    // Register a random number, between 1 and half of the current stock, with max at 100
-    uint32_t maxAmmount = get_stock() / 2;
-    if(maxAmmount > MAX_FUEL_SUPPLY_IN_LITERS)
-        maxAmmount = MAX_FUEL_SUPPLY_IN_LITERS;
-    
-    // Generate a random integer value between 0 and 9999
-    int randomInt = random(10000); 
-    
-    // Scale the random integer to the desired range of double numbers
-    suppliedAmount = map(randomInt, 0, 9999, MIN_FUEL_SUPPLY_IN_LITERS * 10000, maxAmmount * 10000) / 10000.0;
-
-    Serial.println(" - Supplied amount: " + String(suppliedAmount) + "L");
 
     // Decrement stock level
     set_stock(get_stock() - suppliedAmount);

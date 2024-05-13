@@ -32,7 +32,6 @@
 */
 CommsHandler comms(THING_ID, THING_NAMESPACE);
 PumpInteraction pump(FUEL, CAPACITY, STOCK);
-double fuelStock = STOCK;
 
 /*
     ##########################################################################
@@ -74,7 +73,7 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
             Serial.println(" - Supply Authorized message received");
             double amount;
             if(pump.supply_fuel(amount) == ESP_OK)
-                response = Message::create_supply_completed_message(THING_ID, THING_NAMESPACE, amount, fuelStock, get_string_timestamp());
+                response = Message::create_supply_completed_message(THING_ID, THING_NAMESPACE, amount, pump.get_stock(), get_string_timestamp());
             else
                 response = Message::create_supply_error_message(THING_ID, THING_NAMESPACE, "Problem occurred in executing fuel supply", get_string_timestamp());
             break;
@@ -115,7 +114,7 @@ void announce_pump(){
     String timestamp = get_string_timestamp();
 
     // Create the pump init message
-    JsonDocument pumpInitMessage = Message::create_pump_init_message(THING_ID, THING_NAMESPACE, FUEL, fuelStock, CAPACITY, timestamp);
+    JsonDocument pumpInitMessage = Message::create_pump_init_message(THING_ID, THING_NAMESPACE, FUEL, pump.get_stock(), CAPACITY, timestamp);
 
     // Serialize the pump init message
     String serializedPumpInitMessage;
