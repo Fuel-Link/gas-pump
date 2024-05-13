@@ -4,8 +4,8 @@ CommsHandler::CommsHandler(String thingId, String thingNamespace)
     : mqttClient(espClient) {
     this->thingId = thingId;
     this->thingNamespace = thingNamespace;
-    this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(DOWNLINK_CHANNEL);
-    this->outTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(UPLINK_CHANNEL);
+    this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + "_" + thingId + "/" + String(DOWNLINK_CHANNEL);
+    this->outTopic = String(MODULE_NAME) + "/" + thingNamespace + "-" + thingId + "/" + String(UPLINK_CHANNEL);
 }
 
 CommsHandler::~CommsHandler() {}
@@ -57,7 +57,7 @@ boolean CommsHandler::connected_to_wifi(){
     Serial.println();
 
     // channels to Subscribe
-    mqttClient.subscribe(inTopic.c_str());
+    mqttClient.subscribe(IN_TOPIC);
 }
 
 boolean CommsHandler::connected_to_mqtt(){
@@ -146,7 +146,12 @@ bool CommsHandler::publish_message(String message) {
     }
 
     if(!mqttClient.publish(outTopic.c_str(), message.c_str())){
-        Serial.println("Error: Failed to publish image to MQTT broker");
+        Serial.println("Error: Failed to publish message to MQTT broker");
+        //return false;
+    }
+
+    if(!mqttClient.publish(outTopic.c_str(), "hey there!")){
+        Serial.println("Error: Failed to publish message to MQTT broker");
         return false;
     }
 

@@ -10,16 +10,16 @@ esp_err_t PumpInteraction::init_pump(){
     pinMode(PUMP_STATUS_LED_PIN, OUTPUT);
 
     // Configure pump Button pin as input
-    pinMode(PUMP_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(PUMP_BUTTON_PIN, INPUT);
 
     // Define pump motor pin as output
-    pinMode(PUMP_MOTOR_CONTROLLER_PIN, OUTPUT);
+    pinMode(PUMP_CONTROL_RELAY_PIN, OUTPUT);
 
     // Set the default motor mode to off
-    digitalWrite(PUMP_MOTOR_CONTROLLER_PIN, LOW);
+    digitalWrite(PUMP_CONTROL_RELAY_PIN, LOW);
 
-    // Initialize random number generator with analog pin 0
-    randomSeed(analogRead(0)); 
+    // Initialize random number generator with analog pin 34
+    //randomSeed(analogRead(34)); 
 
     // The Gas pump starts at locked
     return lock_pump();
@@ -96,19 +96,19 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmount){
     if(!buttonPressed){
         ESP_ERROR_CHECK(lock_pump());
         Serial.println(" - Button not pressed");
-        return ESP_OK;
+        return ESP_FAIL;
     }
 
     Serial.println(" - Button pressed. Supplying fuel...");
 
     // Activate pump
-    digitalWrite(PUMP_MOTOR_CONTROLLER_PIN, HIGH);
+    digitalWrite(PUMP_CONTROL_RELAY_PIN, HIGH);
 
     // Wait for the user to stop using the button
     while(digitalRead(PUMP_BUTTON_PIN) == LOW);
 
     // Shutoff pump
-    digitalWrite(PUMP_MOTOR_CONTROLLER_PIN, LOW);
+    digitalWrite(PUMP_CONTROL_RELAY_PIN, LOW);
 
     Serial.println(" - Fuel supplied");
 

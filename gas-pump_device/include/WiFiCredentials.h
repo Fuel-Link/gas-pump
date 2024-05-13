@@ -6,7 +6,7 @@
     //! Password of your internet enabled WiFi network
     const char WIFI_PASSWORD[] = "open_up90";
     //! IP address of the MQTT broker
-    const char MQTT_SERVER_IP[] = "192.168.60.79";
+    const char MQTT_SERVER_IP[] = "192.168.167.79";
     //! Port of the MQTT broker
     const int MQTT_SERVER_PORT = 1884;
 #else

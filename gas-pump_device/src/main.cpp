@@ -30,7 +30,7 @@
     ############                 Global Variables                 ############
     ##########################################################################
 */
-CommsHandler comms;
+CommsHandler comms(THING_ID, THING_NAMESPACE);
 PumpInteraction pump(FUEL, CAPACITY, STOCK);
 double fuelStock = STOCK;
 
@@ -42,6 +42,7 @@ double fuelStock = STOCK;
 void setup();
 void loop();
 void announce_pump();
+String get_string_timestamp();
 
 /*
     ##########################################################################
@@ -67,22 +68,33 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
     MESSAGE_TYPE msgType = Message::get_message_type(doc);
 
     // Process the message based on the message type
+    JsonDocument response;
     switch (msgType) {
         case MESSAGE_TYPE::SUPPLY_AUTHORIZED:
             Serial.println(" - Supply Authorized message received");
+            double amount;
+            if(pump.supply_fuel(amount) == ESP_OK)
+                response = Message::create_supply_completed_message(THING_ID, THING_NAMESPACE, amount, fuelStock, get_string_timestamp());
+            else
+                response = Message::create_supply_error_message(THING_ID, THING_NAMESPACE, "Problem occurred in executing fuel supply", get_string_timestamp());
             break;
         
-        case MESSAGE_TYPE::FUEL_REPLENISHMENT:
-            Serial.println(" - Fuel Replenishment message received");
-            break;
-        case MESSAGE_TYPE::SUPPLY_ERROR:
-            Serial.println(" - Supply Error message received");
-            break;
         case MESSAGE_TYPE::UNKNOWN:
             Serial.println(" - Unknown message type received");
-            break;
+            Serial.println();
+            return;
+            //break;
     }
 
+    // Serialize the response message
+    String serializedResponse;
+    ESP_ERROR_CHECK(Message::serialize_message(response, serializedResponse));
+
+    // Publish the response message
+    comms.publish_message(serializedResponse);
+
+    Serial.println(" - Response published");
+    Serial.println();
 }
 
 /*
@@ -91,12 +103,16 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
     ##########################################################################
 */
 
-void announce_pump(){
+String get_string_timestamp(){
     // Get the current time
     timeval currentTime;
     gettimeofday(&currentTime, NULL);
-    long timeInMs = comms.get_time_in_ms(currentTime);
-    String timestamp = comms.get_time_string(currentTime);
+    return comms.get_time_string(currentTime);
+}
+
+void announce_pump(){
+    // Get the current time
+    String timestamp = get_string_timestamp();
 
     // Create the pump init message
     JsonDocument pumpInitMessage = Message::create_pump_init_message(THING_ID, THING_NAMESPACE, FUEL, fuelStock, CAPACITY, timestamp);
