@@ -20,12 +20,10 @@
 		},
 		"capacity": {
 			"title": "Capacity of the fuel tank",
-			"type": "number",
-			"unit": "schema:capacity"
+			"type": "number"
 		},
 		"location": {
 			"title": "Location",
-			"type": "geo:point",
 			"description": "GPS coordinates of the mounted location (latitude, longitude)"
 		}
 	},
@@ -48,7 +46,6 @@
 				"msgType": {
 					"title": "Message type",
 					"type": "number",
-					"unit": "schema:msgType",
 					"description": "Type of the message."
 				}
 			}
@@ -66,19 +63,16 @@
 				"amount": {
 					"title": "Amount",
 					"type": "double",
-					"unit": "schema:liters",
 					"description": "Number of liters supplied."
 				},
 				"stock": {
 					"title": "Stock",
 					"type": "number",
-					"unit": "schema:liters",
 					"description": "Current stock of fuel in the pump."
 				},
 				"msgType": {
 					"title": "Message type",
 					"type": "number",
-					"unit": "schema:msgType",
 					"description": "Type of the message."
 				}
 			}
@@ -96,19 +90,16 @@
 				"amount": {
 					"title": "Amount",
 					"type": "double",
-					"unit": "schema:liters",
 					"description": "Number of liters replenished."
 				},
 				"stock": {
 					"title": "Stock",
 					"type": "number",
-					"unit": "schema:liters",
 					"description": "Current stock of fuel in the pump."
 				},
 				"msgType": {
 					"title": "Message type",
 					"type": "number",
-					"unit": "schema:msgType",
 					"description": "Type of the message."
 				}
 			}
@@ -131,7 +122,6 @@
 				"msgType": {
 					"title": "Message type",
 					"type": "number",
-					"unit": "schema:msgType",
 					"description": "Type of the message."
 				}
 			}
@@ -149,23 +139,20 @@
 				"stock": {
 					"title": "Stock",
 					"type": "number",
-					"unit": "schema:liters",
 					"description": "Current stock of fuel in the pump."
 				},
 				"capacity": {
 					"title": "Capacity",
 					"type": "number",
-					"unit": "schema:liters",
 					"description": "Maximum fuel capacity of the pump."
 				},
 				"msgType": {
 					"title": "Message type",
 					"type": "number",
-					"unit": "schema:msgType",
 					"description": "Type of the message."
 				}
 			}
 		}
-    }
+	}
 }
   

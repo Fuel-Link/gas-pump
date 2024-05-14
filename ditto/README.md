@@ -38,7 +38,7 @@ Based on the Linked-State JSON definition in the file `gas-pump.jsonld`, located
 curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
     "title": "Gas Pump",
     "description": "Gas Pump controller device",  
-    "definition": "https://github.com/Fuel-Link/gas-pump/blob/main/ditto/gas-pump.jsonld",
+    "definition": "https://raw.githubusercontent.com/Fuel-Link/gas-pump/main/ditto/gas-pump.jsonld",
     "attributes": {
         "deviceID": "gas_pump_1234"
     }
