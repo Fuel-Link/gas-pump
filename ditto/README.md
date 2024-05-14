@@ -70,6 +70,12 @@ The device can also be created with other attributes to better identify it's cap
 
 Creating the Plate object will output it's generated **ThingID** (annotate this value), which is in format `org.eclipse.ditto:<Generated_Thing>`, since this value will be placed in the ESP32 License Plate Reader, for it's identification the Ditto Service.
 
+Example of the terminal output when creating a new Gas-Pump thing:
+
+```json
+{"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","policyId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","definition":"https://raw.githubusercontent.com/Fuel-Link/gas-pump/main/ditto/gas-pump.jsonld","attributes":{"deviceID":"gas_pump_1234"}}
+```
+
 ## Connecting to MQTT
 
 To connect the ESP32 to the Ditto Service, we use MQTT due to it's simplicity and available robust libraries
@@ -90,11 +96,11 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             "connectionType": "mqtt",
             "connectionStatus": "open",
             "failoverEnabled": true,
-            "uri": "tcp://192.168.68.111:1883",
+            "uri": "tcp://192.168.167.79:1884",
             "sources": [
                 {
                 "addresses": [
-                    "gas_pump/+/uplink/#"
+                    "gas-pump/+/uplink/#"
                 ],
                 "qos": 0,
                 "authorizationContext": [
@@ -105,7 +111,7 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             ],
             "targets": [
                 {
-                "address": "gas_pump/{{ thing:id }}/downlink",
+                "address": "gas-pump/{{ thing:id }}/downlink",
                 "topics": [
                     "_/_/things/twin/events",
                     "_/_/things/live/messages"
@@ -119,7 +125,7 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             "mappingContext": {
                 "mappingEngine": "JavaScript",
                 "options": {
-                "incomingScript": "function mapToDittoProtocolMsg(\n    headers, \n    textPayload, \n    bytePayload,\n    contentType\n) { const jsonData = JSON.parse(textPayload || \"{}\"); // Handle empty payload\n    const thingId = jsonData.thingId.split(':');\n    const timestamp = jsonData.timestamp;\n    const imageId = jsonData.imageId.toString(); // Ensure imageId is a string\n    const url = jsonData.url;\n\n    const value = { \n        imageCaptured: {\n            properties: {\n                timestamp: {  \n                    value: jsonData.timestamp \n                },\n                imageId: { \n                    properties: { \n                        value: jsonData.imageId \n                    } \n                }, \n                url: { \n                    properties: { \n                        value: jsonData.url \n                    } \n                },\n            } \n        }\n    };    \n  \n    return Ditto.buildDittoProtocolMsg(\n        thingId[0],                 // thing namespace\n        thingId[1],                 // thing ID of the device\n        'things',                   // (group) we deal with a thing\n        'twin',                     // (channel) we want to update the twin\n        'commands',                 // (criterion) create a command to update the twin\n        'modify',                   // (action) modify the twin\n        '/features',  // (path) modify all features at once\n        headers,                    // pass the mqtt headers\n        value\n    );\n}\n  "
+                        "incomingScript": "function mapToDittoProtocolMsg(\n    headers, \n    textPayload, \n    bytePayload,\n    contentType\n) {\n\n    const jsonData = JSON.parse(textPayload || \"{}\"); // Handle empty payload\n    const thingId = jsonData.thingId.split(':');\n\n    let value = {};\n    \n    if(jsonData.msgType === 0) { // Pump Init message\n        value = {\n            pump_init: {\n                properties: {\n                    timestamp: {  \n                        value: jsonData.timestamp \n                    },\n                    stock: { \n                        properties: { \n                            value: jsonData.stock \n                        } \n                    },\n                    capacity: {\n                        properties: {\n                            value: jsonData.capacity\n                        }\n                    },\n                    msgType: { \n                        properties: { \n                            value: jsonData.msgType \n                        } \n                    }\n                } \n            }\n        };\n    } else if(jsonData.msgType === 2) { // Supply completed message\n        value = { \n            supply_completed: {\n                properties: {\n                    timestamp: {  \n                        value: jsonData.timestamp \n                    },\n                    amount: { \n                        properties: { \n                            value: jsonData.amount \n                        } \n                    }, \n                    stock: {\n                        properties: {\n                            value: jsonData.stock\n                        }\n                    },\n                    msgType: { \n                        properties: { \n                            value: jsonData.msgType \n                        } \n                    },\n                } \n            }\n        };\n    } else if (jsonData.msgType === 3) {    // Fuel replenishment message\n        value = { \n            fuel_replenishment: {\n                properties: {\n                    timestamp: {  \n                        value: jsonData.timestamp \n                    },\n                    amount: { \n                        properties: { \n                            value: jsonData.amount \n                        } \n                    }, \n                    stock: { \n                        properties: { \n                            value: jsonData.stock \n                        } \n                    },\n                    msgType: { \n                        properties: { \n                            value: jsonData.msgType \n                        } \n                    }\n                } \n            }\n        };\n    } else if (jsonData.msgType === 4) {    // Supply error message\n        value = {\n            supply_error: {\n                properties: {\n                    timestamp: {  \n                        value: jsonData.timestamp \n                    },\n                    error: { \n                        properties: { \n                            value: jsonData.error \n                        } \n                    }, \n                    msgType: { \n                        properties: { \n                            value: jsonData.msgType \n                        } \n                    }\n                } \n            }\n        };\n    } else {    // error\n        throw new Error('Invalid message type');\n    }\n  \n    return Ditto.buildDittoProtocolMsg(\n        thingId[0],                 // thing namespace\n        thingId[1],                 // thing ID of the device\n        'things',                   // (group) we deal with a thing\n        'twin',                     // (channel) we want to update the twin\n        'commands',                 // (criterion) create a command to update the twin\n        'modify',                   // (action) modify the twin\n        '/features',                // (path) modify all features at once\n        headers,                    // pass the mqtt headers\n        value\n    );\n}\n  "
                 }
             }
         }

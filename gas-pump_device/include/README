@@ -73,5 +73,5 @@ const char* NAMESPACE = "org.eclipse.ditto";
 ```
 
 ```bash
-mosquitto_pub -h localhost -p 1884 -t gas-pump/org.eclipse.ditto:gas-pump-uuid/downlink -m "{\"msgType\":1,\"thingId\":\"org.eclipse.ditto:gas-pump-uuid\",\"timestamp\":\"2024-05-13T16:14:18+0100\",\"topic\":\"org.eclipse.ditto/gas-pump-uuid/things/twin/commands/create\",\"path\":\"/features/authorize_supply/properties/\",\"authorization\": \"true\"}"
+mosquitto_pub -h localhost -p 1884 -t gas-pump/org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20/downlink -m "{\"msgType\":1,\"thingId\":\"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20\",\"timestamp\":\"2024-05-13T16:14:18+0100\",\"topic\":\"org.eclipse.ditto/gas-pump-uuid/things/twin/commands/create\",\"path\":\"/features/authorize_supply/properties/\",\"authorization\": \"true\"}"
 ```
