@@ -157,13 +157,39 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             "bootstrapServers": "localhost:29092",
             "saslMechanism": "plain"
         },
-        "sources": [ ],
+        "sources": [
+            {
+                "addresses": ["gas-pump_downlink"],
+                "consumerCount": 1,
+                "qos": 1,
+                "authorizationContext": ["ditto:inbound-auth-subject"],
+                "enforcement": {
+                    "input": "{{ header:thingId }}",
+                    "filters": ["{{ entity:id }}"]
+                },
+                "headerMapping": {},
+                "payloadMapping": ["Ditto"],
+                "replyTarget": {
+                    "enabled": true,
+                    "address": "theReplyTopic",
+                    "headerMapping": {
+                        "message-id": "{{ header:correlation-id }}",
+                        "content-type": "application/vnd.eclipse.ditto+json"
+                    },
+                    "expectedResponseTypes": ["response", "error", "nack"]
+                },
+                "acknowledgementRequests": {
+                    "includes": []
+                },
+                "declaredAcks": []
+            }
+        ],
         "targets": [
             {
-            "address": "imageCaptured",
+            "address": "gas-pump_uplink",
             "qos": 1,
             "topics": [
-                "_/_/things/twin/events?extraFields=thingId,attributes/_parents,features/imageCaptured/properties",
+                "_/_/things/twin/events?extraFields=thingId,attributes/_parents",
                 "_/_/things/twin/events",
                 "_/_/things/live/messages"
             ],
@@ -179,6 +205,39 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
 `uri` and `specificConfig.bootstrapServers` values can be changes, depending on the IP address used in the connection. In this sense, don't forget that the Kafka Cluster and Ditto should be in the same network, because internally Ditto uses the `kafka:<port>` to connect to the Cluster, because of this, they need to be in the same network, as for the address resolution to work, or at least share the same DNS server.
 
 If authorization or other issues arise in establishing the connection, please use the Web UI to establish the connection. For that, connection templates can also be used.
+
+## Publishing to ditto, using Kafka
+
+First, launch a Kafka producer application, using Docker. Use the following command:
+```bash
+docker run -it --rm --network=host confluentinc/cp-kafka:6.2.0 kafka-console-producer --bootstrap-server localhost:9092 --topic gas-pump_downlink
+```
+
+Then paste the following JSON message, which is serialized version of the one below:
+
+```json
+{"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create","path":"/features/authorize_supply/properties/","messageId":"{{ uuid() }}","timestamp":"{{ timestamp }}","source":"gas-pump","method":"update","target":"/features/authorize_supply","value":{"msgType":1,"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create","path":"/features/authorize_supply/properties/","authorization":1,"timestamp":"2024-05-18T12:03:44+0100"}}```
+
+```json
+{
+    "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20",
+    "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create",
+    "path": "/features/authorize_supply/properties/",
+    "messageId": "{{ uuid() }}",
+    "timestamp": "{{ timestamp }}", 
+    "source": "gas-pump", 
+    "method": "update", 
+    "target": "/features/authorize_supply",
+    "value": {    
+        "msgType": 1,
+        "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20",
+        "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create",
+        "path": "/features/authorize_supply/properties/",
+        "authorization": 1,
+        "timestamp": "2024-05-18T12:03:44+0100"
+    }
+}
+```
 
 ## References
 
