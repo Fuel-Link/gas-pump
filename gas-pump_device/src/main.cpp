@@ -59,7 +59,7 @@ void CommsHandler::mqtt_message_callback(char* topic, byte* payload, unsigned in
     }
     Serial.println();
 
-    // Allocate the JSON document
+    // Allocate the JSON document (the data structure will be in ditto format)
     JsonDocument doc;
     ESP_ERROR_CHECK(Message::deserialize_message((char*) payload, length, doc));
 

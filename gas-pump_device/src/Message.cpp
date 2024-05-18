@@ -89,5 +89,5 @@ esp_err_t Message::deserialize_message(char* message, size_t length,  JsonDocume
 }
 
 MESSAGE_TYPE Message::get_message_type(JsonDocument& doc){
-    return (MESSAGE_TYPE) doc["msgType"].as<int>();
+    return (MESSAGE_TYPE) doc["value"]["properties"]["msgType"]["properties"]["value"].as<int>();
 }

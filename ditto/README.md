@@ -162,16 +162,19 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
                 "addresses": ["gas-pump_downlink"],
                 "consumerCount": 1,
                 "qos": 1,
-                "authorizationContext": ["ditto:inbound-auth-subject"],
+                "authorizationContext": ["ditto:ditto"],
                 "enforcement": {
                     "input": "{{ header:thingId }}",
                     "filters": ["{{ entity:id }}"]
                 },
-                "headerMapping": {},
+                "headerMapping": {
+                    "message-id": "{{ header:correlation-id }}",
+                    "content-type": "application/vnd.eclipse.ditto+json"
+                },
                 "payloadMapping": ["Ditto"],
                 "replyTarget": {
                     "enabled": true,
-                    "address": "theReplyTopic",
+                    "address": "kafka-errors",
                     "headerMapping": {
                         "message-id": "{{ header:correlation-id }}",
                         "content-type": "application/vnd.eclipse.ditto+json"
@@ -197,7 +200,22 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
                 "nginx:ditto"
             ]
             }
-        ]
+        ],
+        "clientCount": 1,
+        "failoverEnabled": true,
+        "validateCertificates": true,
+        "processorPoolSize": 1,
+        "specificConfig": {
+            "saslMechanism": "plain",
+            "bootstrapServers": "kafka:29092"
+        },
+        "tags": [],
+        "mappingContext": {
+            "mappingEngine": "JavaScript",
+            "options": {
+            "incomingScript": "function mapToDittoProtocolMsg(\n    headers, \n    textPayload, \n    bytePayload,\n    contentType\n) {\n\n    const jsonData = JSON.parse(textPayload || \"{}\"); // Handle empty payload\n    const thingId = jsonData.thingId.split(':');\n    const jsonValue = jsonData.value;\n\n    // Only handle authorized_supply messages\n    let channel = \"/features/authorize_supply\";\n    data = {\n        properties: {\n            timestamp: {\n                properties: { \n                    value: jsonValue.timestamp \n                }\n            },\n            authorization: { \n                properties: { \n                    value: jsonValue.authorization \n                } \n            },\n            msgType: { \n                properties: { \n                    value: jsonValue.msgType \n                } \n            }\n        } \n    };\n  \n    return Ditto.buildDittoProtocolMsg(\n        thingId[0],                 // thing namespace\n        thingId[1],                 // thing ID of the device\n        'things',                   // (group) we deal with a thing\n        'twin',                     // (channel) we want to update the twin\n        'commands',                 // (criterion) create a command to update the twin\n        'modify',                   // (action) modify the twin\n        channel,                    // (path) modify only the chosen feature\n        headers,                    // pass the mqtt headers\n        value\n    );\n}\n  "
+            }
+        }
     }
 }' 'http://localhost:8080/devops/piggyback/connectivity?timeout=10'
 ```
@@ -216,12 +234,13 @@ docker run -it --rm --network=host confluentinc/cp-kafka:6.2.0 kafka-console-pro
 Then paste the following JSON message, which is serialized version of the one below:
 
 ```json
-{"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create","path":"/features/authorize_supply/properties/","messageId":"{{ uuid() }}","timestamp":"{{ timestamp }}","source":"gas-pump","method":"update","target":"/features/authorize_supply","value":{"msgType":1,"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create","path":"/features/authorize_supply/properties/","authorization":1,"timestamp":"2024-05-18T12:03:44+0100"}}```
+{"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify","path":"/features/authorize_supply/properties/","messageId":"{{ uuid() }}","timestamp":"{{ timestamp }}","source":"gas-pump","method":"update","target":"/features/authorize_supply","value":{"msgType":1,"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify","path":"/features/authorize_supply/properties/","authorization":1,"timestamp":"2024-05-18T12:03:44+0100"}}
+```
 
 ```json
 {
     "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20",
-    "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create",
+    "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify",
     "path": "/features/authorize_supply/properties/",
     "messageId": "{{ uuid() }}",
     "timestamp": "{{ timestamp }}", 
@@ -231,7 +250,7 @@ Then paste the following JSON message, which is serialized version of the one be
     "value": {    
         "msgType": 1,
         "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20",
-        "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create",
+        "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify",
         "path": "/features/authorize_supply/properties/",
         "authorization": 1,
         "timestamp": "2024-05-18T12:03:44+0100"
@@ -245,3 +264,47 @@ Then paste the following JSON message, which is serialized version of the one be
 * Eclipse Ditto [examples](https://github.com/eclipse-ditto/ditto-examples/tree/master/mqtt-bidirectional) with MQTT bidirectional communication, including [Arduino project](https://github.com/eclipse-ditto/ditto-examples/blob/master/mqtt-bidirectional/iot-device/octopus/src/main.ino)
 * Eclipse Ditto MQTT documentation [page](https://eclipse.dev/ditto/1.5/connectivity-protocol-bindings-mqtt.html)
 
+## Bug description and steps
+
+When creating the ditto connection (it needs to be a completely new connection), establish the configuration description and make sure that it's receiving data. Then proceed to specify a new Incoming JavaScript Mapping funcion. Click update and test the messages. After troubleshooting some errors, a `content-type '<unspecified>'` not defined error appeared. No matter what i did (included in the message, changed header-mapping). It wouldn't work. Noticed that when defining the mapping function, it wouldn't place the mapping function correctly. The mapping would appear like this (which is according to ditto [documentation](https://eclipse.dev/ditto/connectivity-mapping.html)):
+
+```json
+"mappingDefinitions": {
+    "javascript": {
+        "mappingEngine": "JavaScript",
+        "options": {
+            "incomingScript": "function mapToDittoProtocolMsg(\n    headers, \n    textPayload, \n    bytePayload,\n    contentType\n) {\n\n    const jsonData = JSON.parse(textPayload || \"{}\"); // Handle empty payload\n    const thingId = jsonData.thingId.split(':');\n    const jsonValue = jsonData.value;\n\n    // Only handle authorized_supply messages\n    let channel = \"/features/authorize_supply\";\n    value = {\n        properties: {\n            timestamp: {\n                properties: { \n                    value: jsonValue.timestamp \n                }\n            },\n            authorization: { \n                properties: { \n                    value: jsonValue.authorization \n                } \n            },\n            msgType: { \n                properties: { \n                    value: jsonValue.msgType \n                } \n            }\n        } \n    };\n  \n    return Ditto.buildDittoProtocolMsg(\n        thingId[0],                 // thing namespace\n        thingId[1],                 // thing ID of the device\n        'things',                   // (group) we deal with a thing\n        'twin',                     // (channel) we want to update the twin\n        'commands',                 // (criterion) create a command to update the twin\n        'modify',                   // (action) modify the twin\n        channel,                    // (path) modify only the chosen feature\n        headers,                    // pass the mqtt headers\n        value\n    );\n}\n  ",
+            "outgoingScript": ""
+        }
+    }
+}
+```
+
+But, according to ditto [examples](https://github.com/eclipse-ditto/ditto-examples/tree/master/mqtt-bidirectional), the definition should look like this:
+
+```json
+"mappingContext": {
+    "mappingEngine": "JavaScript",
+    "options": {
+        "incomingScript": "function mapToDittoProtocolMsg(\n    headers, \n    textPayload, \n    bytePayload,\n    contentType\n) {\n\n    const jsonData = JSON.parse(textPayload || \"{}\"); // Handle empty payload\n    const thingId = jsonData.thingId.split(':');\n    const jsonValue = jsonData.value;\n\n    // Only handle authorized_supply messages\n    let channel = \"/features/authorize_supply\";\n    value = {\n        properties: {\n            timestamp: {\n                properties: { \n                    value: jsonValue.timestamp \n                }\n            },\n            authorization: { \n                properties: { \n                    value: jsonValue.authorization \n                } \n            },\n            msgType: { \n                properties: { \n                    value: jsonValue.msgType \n                } \n            }\n        } \n    };\n  \n    return Ditto.buildDittoProtocolMsg(\n        thingId[0],                 // thing namespace\n        thingId[1],                 // thing ID of the device\n        'things',                   // (group) we deal with a thing\n        'twin',                     // (channel) we want to update the twin\n        'commands',                 // (criterion) create a command to update the twin\n        'modify',                   // (action) modify the twin\n        channel,                    // (path) modify only the chosen feature\n        headers,                    // pass the mqtt headers\n        value\n    );\n}\n  "
+    }
+}
+```
+
+This makes the payload mapping not appear in the web editor, but still work. However, uppon a system restart, the definition would appear in the other format and would work without issues.
+
+### Note
+
+Error:
+
+```json
+{
+  "correlationId": "a7d35a2f-3d71-4cf0-95cb-428db16f4fa9",
+  "timestamp": "2024-05-18T14:02:01.296616075Z",
+  "category": "source",
+  "type": "mapped",
+  "level": "failure",
+  "message": "Got exception <connectivity:message.mapping.failed> when processing external message with mapper <javascript>: The external message with content-type '<unspecified>' could not be mapped. - Message headers: [kafka.timestamp=1716040920247, kafka.topic=gas-pump_downlink, correlation-id=a7d35a2f-3d71-4cf0-95cb-428db16f4fa9] - Message payload: \"thingId\":\"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20\",\"topic\":\"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create\",\"path\":\"/features/authorize_supply/properties/\",\"messageId\":\"{{ uuid() }}\",\"timestamp\":\"{{ timestamp }}\",\"source\":\"gas-pump\",\"method\":\"update\",\"target\":\"/features/authorize_supply\",\"value\":{\"msgType\":1,\"thingId\":\"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20\",\"topic\":\"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/create\",\"path\":\"/features/authorize_supply/properties/\",\"authorization\":1,\"timestamp\":\"2024-05-18T12:03:44+0100\"}}",
+  "address": "gas-pump_downlink"
+}
+```
