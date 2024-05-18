@@ -99,27 +99,35 @@ curl -u ditto:ditto -X POST -H 'Content-Type: application/json' -d '{
             "uri": "tcp://192.168.167.79:1884",
             "sources": [
                 {
-                "addresses": [
-                    "gas-pump/+/uplink/#"
-                ],
-                "qos": 0,
-                "authorizationContext": [
+                    "addresses": [
+                    "gas-pump_downlink"
+                    ],
+                    "consumerCount": 1,
+                    "qos": 1,
+                    "authorizationContext": [
                     "nginx:ditto"
-                ],
-                "filters": []
-                }
-            ],
-            "targets": [
-                {
-                "address": "gas-pump/{{ thing:id }}/downlink",
-                "topics": [
-                    "_/_/things/twin/events",
-                    "_/_/things/live/messages"
-                ],
-                "qos": 0,
-                "authorizationContext": [
-                    "nginx:ditto"
-                ]
+                    ],
+                    "headerMapping": {
+                    "message-id": "{{ header:correlation-id }}",
+                    "content-type": "application/vnd.eclipse.ditto+json"
+                    },
+                    "replyTarget": {
+                    "enabled": true,
+                    "address": "kafka-errors",
+                    "headerMapping": {
+                        "message-id": "{{ header:correlation-id }}",
+                        "content-type": "application/vnd.eclipse.ditto+json"
+                    },
+                    "expectedResponseTypes": [
+                        "response",
+                        "error",
+                        "nack"
+                    ]
+                    },
+                    "acknowledgementRequests": {
+                    "includes": []
+                    },
+                    "declaredAcks": []
                 }
             ],
             "mappingContext": {
@@ -231,7 +239,7 @@ First, launch a Kafka producer application, using Docker. Use the following comm
 docker run -it --rm --network=host confluentinc/cp-kafka:6.2.0 kafka-console-producer --bootstrap-server localhost:9092 --topic gas-pump_downlink
 ```
 
-Then paste the following JSON message, which is serialized version of the one below:
+Then paste the following JSON message, which is a serialized version of the one below:
 
 ```json
 {"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify","path":"/features/authorize_supply/properties/","messageId":"{{ uuid() }}","timestamp":"{{ timestamp }}","source":"gas-pump","method":"update","target":"/features/authorize_supply","value":{"msgType":1,"thingId":"org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20","topic":"org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/commands/modify","path":"/features/authorize_supply/properties/","authorization":1,"timestamp":"2024-05-18T12:03:44+0100"}}
@@ -255,6 +263,161 @@ Then paste the following JSON message, which is serialized version of the one be
         "authorization": 1,
         "timestamp": "2024-05-18T12:03:44+0100"
     }
+}
+```
+
+## Consuming from ditto, using Kafka
+
+First, launch a Kafka consumer application, using Docker. Use the following command:
+```bash
+docker run -it --rm --network=host confluentinc/cp-kafka:6.2.0 kafka-console-consumer --bootstrap-server localhost:9092 --topic gas-pump_uplink
+```
+
+The expected data should be in the following format for initiation of the Pump:
+
+```json
+{
+   "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/events/modified",
+   "headers": {
+      "mqtt.qos": "0",
+      "mqtt.retain": "false",
+      "mqtt.topic": "gas-pump/org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20/uplink",
+      "ditto-originator": "nginx:ditto",
+      "response-required": false,
+      "version": 2,
+      "requested-acks": [],
+      "content-type": "application/json",
+      "correlation-id": "51ee79d5-fac5-446b-819a-2251e7f5dd4d"
+   },
+   "path": "/features/pump_init",
+   "value": {
+      "properties": {
+         "timestamp": {
+            "properties": {
+               "value": "2024-05-18T12:39:28+0100"
+            }
+         },
+         "stock": {
+            "properties": {
+               "value": 4500
+            }
+         },
+         "capacity": {
+            "properties": {
+               "value": 5000
+            }
+         },
+         "msgType": {
+            "properties": {
+               "value": 0
+            }
+         }
+      }
+   },
+   "extra": {
+      "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20"
+   },
+   "revision": 44,
+   "timestamp": "2024-05-18T11:39:28.548410811Z"
+}
+```
+
+A supply completed message will be in the following format:
+
+```json
+{
+   "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/events/modified",
+   "headers": {
+      "mqtt.qos": "0",
+      "mqtt.retain": "false",
+      "mqtt.topic": "gas-pump/org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20/uplink",
+      "ditto-originator": "nginx:ditto",
+      "response-required": false,
+      "version": 2,
+      "requested-acks": [],
+      "content-type": "application/json",
+      "correlation-id": "64aedf7e-6199-4b54-bb56-4e46cb508029"
+   },
+   "path": "/features/supply_completed",
+   "value": {
+      "properties": {
+         "timestamp": {
+            "properties": {
+               "value": "2024-05-18T16:41:17+0100"
+            }
+         },
+         "amount": {
+            "properties": {
+               "value": 5.503435047
+            }
+         },
+         "stock": {
+            "properties": {
+               "value": 4494
+            }
+         },
+         "msgType": {
+            "properties": {
+               "value": 2
+            }
+         }
+      }
+   },
+   "extra": {
+      "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20"
+   },
+   "revision": 57,
+   "timestamp": "2024-05-18T15:41:17.510972567Z"
+}
+```
+
+Attention, that although you may be ordering the supply of fuel, you will still receive your given command in the uplink channel, which will have to be filtered. The message will look like this:
+
+```json
+{
+   "topic": "org.eclipse.ditto/9b0ec976-3012-42d8-b9ea-89d8b208ca20/things/twin/events/modified",
+   "headers": {
+      "authorization": "Basic ZGl0dG86ZGl0dG8=",
+      "x-real-ip": "172.28.0.1",
+      "x-forwarded-user": "ditto",
+      "x-ditto-pre-authenticated": "nginx:ditto",
+      "postman-token": "b78dbd13-9335-449b-8732-089c7867578d",
+      "host": "localhost:8080",
+      "x-forwarded-for": "172.28.0.1",
+      "accept": "*/*",
+      "user-agent": "PostmanRuntime/7.37.3",
+      "ditto-originator": "nginx:ditto",
+      "response-required": false,
+      "version": 2,
+      "requested-acks": [],
+      "content-type": "application/json",
+      "correlation-id": "2542f36c-65a1-4959-b229-04f6186d6c6d"
+   },
+   "path": "/features/authorize_supply",
+   "value": {
+      "properties": {
+         "timestamp": {
+            "properties": {
+               "value": "2024-05-18T12:03:44+0100"
+            }
+         },
+         "authorization": {
+            "properties": {
+               "value": 1
+            }
+         },
+         "msgType": {
+            "properties": {
+               "value": 1
+            }
+         }
+      }
+   },
+   "extra": {
+      "thingId": "org.eclipse.ditto:9b0ec976-3012-42d8-b9ea-89d8b208ca20"
+   },
+   "revision": 52,
+   "timestamp": "2024-05-18T15:38:09.409779963Z"
 }
 ```
 
