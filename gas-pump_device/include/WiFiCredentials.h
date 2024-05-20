@@ -7,8 +7,6 @@
     const char WIFI_PASSWORD[] = "open_up90";
     //! IP address of the MQTT broker
     const char MQTT_SERVER_IP[] = "192.168.167.79";
-    //! Port of the MQTT broker
-    const int MQTT_SERVER_PORT = 1884;
 #else
     //! SSID of your internet enabled WiFi network
     const char WIFI_SSID[] = "familia-silva";
@@ -16,7 +14,8 @@
     const char WIFI_PASSWORD[] = "PaoDe-Presunto24";
     //! IP address of the MQTT broker
     const char MQTT_SERVER_IP[] = "192.168.68.111";
-    //! Port of the MQTT broker
-    const int MQTT_SERVER_PORT = 1884;
 #endif
+
+//! Port of the MQTT broker
+const int MQTT_SERVER_PORT = 8000;
 
