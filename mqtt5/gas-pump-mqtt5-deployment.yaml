@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert --file docker-compose-prod.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gas-pump-mqtt5
+  name: gas-pump-mqtt5
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gas-pump-mqtt5
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert --file docker-compose-prod.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/gas-pump.network: "true"
+        io.kompose.service: gas-pump-mqtt5
+    spec:
+      containers:
+      - image: eclipse-mosquitto #busybox:1.28 #
+        imagePullPolicy: ""
+        name: mqtt5
+        command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+        ports:
+        - containerPort: 1883
+        - containerPort: 9001
+        resources: {}
+        volumeMounts:
+        - mountPath: /mosquitto/config
+          name: gas-pump-mqtt5-claim0
+        - mountPath: /mosquitto/data
+          name: gas-pump-mqtt5-claim1
+        - mountPath: /mosquitto/log
+          name: gas-pump-mqtt5-claim2
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: gas-pump-mqtt5-claim0
+        persistentVolumeClaim:
+          claimName: gas-pump-mqtt5-claim0
+      - name: gas-pump-mqtt5-claim1
+        persistentVolumeClaim:
+          claimName: gas-pump-mqtt5-claim1
+      - name: gas-pump-mqtt5-claim2
+        persistentVolumeClaim:
+          claimName: gas-pump-mqtt5-claim2
+
+status: {}

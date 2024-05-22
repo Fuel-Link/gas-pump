@@ -1,0 +1,27 @@
+
+version: "3.7"
+services:
+  # mqtt5 eclipse-mosquitto
+  gas-pump_mqtt5:
+    image: eclipse-mosquitto
+    container_name: mqtt5
+    ports:
+      - "8000:1883" # mqtt tcp port
+      - "80:9001" # mqtt port for websockets
+    volumes:
+      - ./config:/mosquitto/config:rw
+      - ./data:/mosquitto/data:rw
+      - ./log:/mosquitto/log:rw
+    restart: unless-stopped
+    networks:
+      - gas-pump.network
+
+# volumes for mapping data,config and log
+volumes:
+  config:
+  data:
+  log:
+
+networks:
+  gas-pump.network:
+    external: true

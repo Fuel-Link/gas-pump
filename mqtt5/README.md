@@ -93,6 +93,8 @@ sudo docker ps
 
 ```
 
+# Optional
+
 ## 7. Create a user/password in the pwfile
 
 ```bash
@@ -175,3 +177,77 @@ See details here: https://github.com/sponsors/sukesh-ak
 Your sponsorship would help me not only maintain the projects I'm involved in, but also support my other community activities and purchase hardware for testing these libraries. If you're an individual user who has enjoyed my projects or benefited from my community work, please consider donating as a sign of appreciation. If you run a business that uses my work in your products, sponsoring my development makes good business sense: it ensures that the projects your product relies on stay healthy and actively maintained.
 
 Thank you for considering supporting my work!
+
+# Deployment
+
+Convert the `docker-compose-prod.yml` to k3s deployment files using kompose, with the command:
+
+```bash
+kompose convert --file docker-compose-prod.yml
+```
+
+Add the namespace to all the generated deployment files:
+
+```yaml
+metadata:
+  ...
+  namespace: egs-fuellink
+...
+```
+
+## Volumes
+
+Execute the deployment creation of the volumes, using the command:
+
+```bash
+kubectl apply -f gas-pump-mqtt5-claim0-persistentvolumeclaim.yaml
+kubectl apply -f gas-pump-mqtt5-claim1-persistentvolumeclaim.yaml
+kubectl apply -f gas-pump-mqtt5-claim2-persistentvolumeclaim.yaml
+kubectl get pvc -n egs-fuellink
+```
+
+Add the mqtt configuration files to the volumes:
+
+```bash
+kubectl create configmap mosquitto-config --from-file=/tmp/mosquitto.conf -n egs-fuellink
+kubectl create configmap pwfile --from-file=pwfile -n egs-fuellink
+```
+
+Better to boot up with a slim distribution, like busybox, configure the volumes since they are persistent and then deploy again with mosquitto
+
+## Network
+
+Change the network policy API version to:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+```
+
+Execute the following command to create the shared `gas-pump.network` network:
+
+```bash
+kubectl apply -f gas-pump.network-networkpolicy.yaml
+```
+
+## Deploy
+
+Deploy the Service:
+
+```bash
+kubectl apply -f gas-pump-mqtt5-service.yaml
+```
+
+Execute the deployment:
+
+```bash
+kubectl apply -f gas-pump-mqtt5-deployment.yaml
+```
+
+List the deployed services:
+
+```bash
+kubectl get service --namespace egs-fuellink
+kubectl get pods --namespace egs-fuellink
+kubectl logs gas-pump-mqtt5-7bdb488b84-2v49r -n egs-fuellink
+```
+
