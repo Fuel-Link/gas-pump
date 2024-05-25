@@ -5,6 +5,7 @@ metadata:
   name: mongodb
   labels:
     name: mongodb
+  namespace: egs-fuellink
 spec:
   ports:
     - port: 27017
@@ -19,6 +20,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongodb
+  namespace: egs-fuellink
 spec:
   selector:
     matchLabels:

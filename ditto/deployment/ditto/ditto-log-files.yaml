@@ -5,6 +5,7 @@ metadata:
   name: ditto-logs-initiator
   labels:
     name: ditto-logs-initiator
+  namespace: egs-fuellink
 spec:
   volumes:
     - name: ditto-logs-directory
