@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gas-pump-mqtt5-config
+  namespace: egs-fuellink
+data:
+  mosquitto.conf: |
+
+    allow_anonymous true
+    listener 1883
+    listener 8000
+    protocol websockets
+    persistence true
+    #password_file /mosquitto/config/pwfile
+    persistence_file mosquitto.db
+    persistence_location /mosquitto/data/
+
+  #pwfile: |
