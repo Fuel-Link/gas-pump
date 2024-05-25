@@ -19,3 +19,5 @@
 //! Port of the MQTT broker
 const int MQTT_SERVER_PORT = 8000;
 
+const char URI[] = "/";
+

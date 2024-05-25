@@ -2,9 +2,10 @@
 
 //! \attention for WiFi include to always be first
 #include <WiFi.h>
-#include <PubSubClient.h>
 #include <WiFiCredentials.h>
 #include <ESPNtpClient.h>
+#include <WebSocketsClient.h>  // include before MQTTPubSubClient.h
+#include <MQTTPubSubClient.h>
 
 /*
     ##########################################################################
@@ -34,8 +35,9 @@
 class CommsHandler {
    private:
     //!< WiFi and MQTT clients
-    WiFiClient espClient;
-    PubSubClient mqttClient;
+    //WiFiClient espClient;
+    WebSocketsClient webSockClient;
+    MQTTPubSub::PubSubClient<MQTT_MAX_PACKET_SIZE> mqttClient;
 
     //! MQTT configurations
     String inTopic;

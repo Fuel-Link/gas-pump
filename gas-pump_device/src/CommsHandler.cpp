@@ -1,7 +1,6 @@
 #include <CommsHandler.h>
 
-CommsHandler::CommsHandler(String thingId, String thingNamespace) 
-    : mqttClient(espClient) {
+CommsHandler::CommsHandler(String thingId, String thingNamespace) {
     this->thingId = thingId;
     this->thingNamespace = thingNamespace;
     this->inTopic = String(MODULE_NAME) + "/" + thingNamespace + ":" + thingId + "/" + String(DOWNLINK_CHANNEL);
@@ -38,30 +37,36 @@ boolean CommsHandler::connected_to_wifi(){
         return;
     }
 
-    mqttClient.setServer(MQTT_SERVER_IP, MQTT_SERVER_PORT);
-    mqttClient.setCallback(mqtt_message_callback);
+    // initialize mqtt client
+    mqttClient.begin(webSockClient);
 
-    Serial.printf("Connecting to MQTT broker at %s:%d", MQTT_SERVER_IP, MQTT_SERVER_PORT);
+    Serial.printf("Connecting to MQTT broker at %s:%d%s", MQTT_SERVER_IP, MQTT_SERVER_PORT, URI);
     Serial.println();
 
-    while (!mqttClient.connected()) {
-        if (!mqttClient.connect(thingId.c_str())) {
-            Serial.print("Failed to connect to MQTT broker, rc=");
-            Serial.print(mqttClient.state());
-            Serial.println(" Retrying in 5 seconds");
-            delay(5000);
+    connect_to_host:
+        Serial.println(" - Connecting to WebSocket");
+        // connect to host with MQTT over WebSocket
+        webSockClient.disconnect();
+        webSockClient.begin(MQTT_SERVER_IP, MQTT_SERVER_PORT, URI, "mqtt");
+        webSockClient.setReconnectInterval(2000);
+
+        Serial.println(" - Connecting to MQTT broker");
+        while (!mqttClient.connect(thingId.c_str())) {
+            Serial.print(".");
+            delay(1000);
+            if (!webSockClient.isConnected()) {
+                Serial.println(" - WebSocketsClient disconnected");
+                goto connect_to_host;
+            }
         }
-    }
 
     Serial.println(" - Connected to MQTT broker");
 
-    // channels to Subscribe
-
-    if(!mqttClient.subscribe(inTopic.c_str())){
-        Serial.print("Error: Failed to subscribe to MQTT channel: ");
-        Serial.println(inTopic);
-        return;
-    }
+    // subscribe topic and callback which is called when /hello has come
+    mqttClient.subscribe(inTopic, [this](const String& payload, const size_t size) {
+        char* topic = (char*)this->inTopic.c_str();
+        mqtt_message_callback(topic, (byte*)payload.c_str(), size);
+    });
 
     Serial.print(" - Subscribed to MQTT channel: ");
     Serial.println(inTopic);
@@ -69,8 +74,8 @@ boolean CommsHandler::connected_to_wifi(){
 }
 
 boolean CommsHandler::connected_to_mqtt(){
-    mqttClient.loop();
-    return mqttClient.connected();
+    mqttClient.update();  
+    return mqttClient.isConnected() && webSockClient.isConnected();
 }
 
 long CommsHandler::get_time_in_ms(timeval& currentTime){
@@ -144,7 +149,7 @@ bool CommsHandler::publish_message(const char* message, size_t length) {
         return false;
     }
 
-    if (!mqttClient.connected()) {
+    if (!mqttClient.isConnected()) {
         Serial.println("Error: MQTT broker not connected");
         return false;
     }
@@ -161,6 +166,7 @@ bool CommsHandler::publish_message(const char* message, size_t length) {
     Serial.println(message);
     Serial.print(" - Length: ");
     Serial.println(length);
+    Serial.println();
 
     if(!mqttClient.publish(outTopic.c_str(), message, length)){
         Serial.println("Error: Failed to publish message to MQTT broker");
