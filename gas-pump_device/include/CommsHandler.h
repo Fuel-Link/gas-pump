@@ -35,7 +35,6 @@
 class CommsHandler {
    private:
     //!< WiFi and MQTT clients
-    //WiFiClient espClient;
     WebSocketsClient webSockClient;
     MQTTPubSub::PubSubClient<MQTT_MAX_PACKET_SIZE> mqttClient;
 
