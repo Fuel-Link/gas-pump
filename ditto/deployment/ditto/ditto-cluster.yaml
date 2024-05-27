@@ -49,33 +49,34 @@ spec:
         - name: management
           containerPort: 7626
           protocol: TCP
-        #readinessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /ready
-        #  initialDelaySeconds: 45
-        #  periodSeconds: 10
-        #livenessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /alive
-        #  initialDelaySeconds: 180
-        #  periodSeconds: 10
-        #  timeoutSeconds: 3
-        #  failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            port: management
+            path: /ready
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: management
+            path: /alive
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 4
         env:
-        #- name: INSTANCE_INDEX
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: metadata.name
-        #- name: HOSTNAME
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: status.podIP
-        #- name: DISCOVERY_METHOD
-        #  value: "kubernetes-api"
+        - name: INSTANCE_INDEX
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: DISCOVERY_METHOD
+          value: "kubernetes-api"
         - name: TZ
           value: "Europe/Berlin"
         - name: JAVA_TOOL_OPTIONS
@@ -151,33 +152,34 @@ spec:
         - name: management
           containerPort: 7626
           protocol: TCP
-        #readinessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /ready
-        #  initialDelaySeconds: 45
-        #  periodSeconds: 10
-        #livenessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /alive
-        #  initialDelaySeconds: 180
-        #  periodSeconds: 10
-        #  timeoutSeconds: 3
-        #  failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            port: management
+            path: /ready
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: management
+            path: /alive
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 4
         env:
-        #- name: INSTANCE_INDEX
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: metadata.name
-        #- name: HOSTNAME
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: status.podIP
-        #- name: DISCOVERY_METHOD
-        #  value: "kubernetes-api"
+        - name: INSTANCE_INDEX
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: DISCOVERY_METHOD
+          value: "kubernetes-api"
         - name: TZ
           value: "Europe/Berlin"
         - name: JAVA_TOOL_OPTIONS
@@ -202,7 +204,6 @@ spec:
             type: DirectoryOrCreate
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -253,33 +254,34 @@ spec:
         - name: management
           containerPort: 7626
           protocol: TCP
-        #readinessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /ready
-        #  initialDelaySeconds: 45
-        #  periodSeconds: 10
-        #livenessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /alive
-        #  initialDelaySeconds: 180
-        #  periodSeconds: 10
-        #  timeoutSeconds: 3
-        #  failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            port: management
+            path: /ready
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: management
+            path: /alive
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 4
         env:
-        #- name: INSTANCE_INDEX
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: metadata.name
-        #- name: HOSTNAME
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: status.podIP
-        #- name: DISCOVERY_METHOD
-        #  value: "kubernetes-api"
+        - name: INSTANCE_INDEX
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: DISCOVERY_METHOD
+          value: "kubernetes-api"
         - name: TZ
           value: "Europe/Berlin"
         - name: JAVA_TOOL_OPTIONS
@@ -355,33 +357,34 @@ spec:
         - name: management
           containerPort: 7626
           protocol: TCP
-        #readinessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /ready
-        #  initialDelaySeconds: 45
-        #  periodSeconds: 10
-        #livenessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /alive
-        #  initialDelaySeconds: 180
-        #  periodSeconds: 10
-        #  timeoutSeconds: 3
-        #  failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            port: management
+            path: /ready
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: management
+            path: /alive
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 4
         env:
-        #- name: INSTANCE_INDEX
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: metadata.name
-        #- name: HOSTNAME
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: status.podIP
-        #- name: DISCOVERY_METHOD
-        #  value: "kubernetes-api"
+        - name: INSTANCE_INDEX
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: DISCOVERY_METHOD
+          value: "kubernetes-api"
         - name: TZ
           value: "Europe/Berlin"
         - name: JAVA_TOOL_OPTIONS
@@ -456,35 +459,36 @@ spec:
         - name: management
           containerPort: 7626
           protocol: TCP
-        #readinessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /ready
-        #  initialDelaySeconds: 45
-        #  periodSeconds: 10
-        #livenessProbe:
-        #  httpGet:
-        #    port: management
-        #    path: /alive
-        #  initialDelaySeconds: 180
-        #  periodSeconds: 10
-        #  timeoutSeconds: 3
-        #  failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            port: management
+            path: /ready
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: management
+            path: /alive
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 4
         env:
         - name: ENABLE_PRE_AUTHENTICATION
           value: "true"
-        #- name: INSTANCE_INDEX
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: metadata.name
-        #- name: HOSTNAME
-        #  valueFrom:
-        #    fieldRef:
-        #      apiVersion: v1
-        #      fieldPath: status.podIP
-        #- name: DISCOVERY_METHOD
-        #  value: "kubernetes-api"
+        - name: INSTANCE_INDEX
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: DISCOVERY_METHOD
+          value: "kubernetes-api"
         - name: TZ
           value: "Europe/Berlin"
         - name: JAVA_TOOL_OPTIONS

@@ -1,0 +1,852 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gateway
+  name: gateway
+  namespace: egs-fuellink
+spec:
+  ports:
+  - name: "8081"
+    port: 8081
+    targetPort: 8080
+  selector:
+    io.kompose.service: gateway
+status:
+  loadBalancer: {}
+  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongodb
+  name: mongodb
+  namespace: egs-fuellink
+spec:
+  ports:
+  - name: "27017"
+    port: 27017
+    targetPort: 27017
+  selector:
+    io.kompose.service: mongodb
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ditto-nginx
+  name: ditto-nginx
+  namespace: egs-fuellink
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 80
+  selector:
+    io.kompose.service: ditto-nginx
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: connectivity
+  name: connectivity
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: connectivity
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: connectivity
+    spec:
+      containers:
+      - env:
+        - name: BIND_HOSTNAME
+          value: 0.0.0.0
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ActiveProcessorCount=2 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport
+            -XX:+UseStringDeduplication -Xss512k -XX:MaxRAMPercentage=50 -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=150 -Dpekko.coordinated-shutdown.exit-jvm=on -Dpekko.cluster.shutdown-after-unsuccessful-join-seed-nodes=180s
+            -Dpekko.cluster.failure-detector.threshold=15.0 -Dpekko.cluster.failure-detector.expected-response-after=10s
+            -Dpekko.cluster.failure-detector.acceptable-heartbeat-pause=20s -Dpekko.cluster.downing-provider-class=
+        - name: MONGO_DB_HOSTNAME
+          value: mongodb
+        - name: TZ
+          value: Europe/London
+        image: docker.io/eclipse/ditto-connectivity:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - curl --fail `hostname`:7626/alive || exit 1
+          failureThreshold: 4
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+        name: connectivity
+        resources:
+          limits:
+            memory: "805306368"
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ditto-ui
+  name: ditto-ui
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ditto-ui
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: ditto-ui
+    spec:
+      containers:
+      - image: docker.io/eclipse/ditto-ui:latest
+        imagePullPolicy: ""
+        name: ditto-ui
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gateway
+  name: gateway
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gateway
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: gateway
+    spec:
+      containers:
+      - env:
+        - name: BIND_HOSTNAME
+          value: 0.0.0.0
+        - name: ENABLE_PRE_AUTHENTICATION
+          value: "true"
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ActiveProcessorCount=2 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport
+            -XX:+UseStringDeduplication -Xss512k -XX:MaxRAMPercentage=50 -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=150 -Dpekko.coordinated-shutdown.exit-jvm=on -Dpekko.cluster.shutdown-after-unsuccessful-join-seed-nodes=180s
+            -Dpekko.cluster.failure-detector.threshold=15.0 -Dpekko.cluster.failure-detector.expected-response-after=10s
+            -Dpekko.cluster.failure-detector.acceptable-heartbeat-pause=20s -Dpekko.cluster.downing-provider-class=
+        - name: TZ
+          value: Europe/London
+        image: docker.io/eclipse/ditto-gateway:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - curl --fail `hostname`:7626/alive || exit 1
+          failureThreshold: 4
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+        name: gateway
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "536870912"
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongodb
+  name: mongodb
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mongodb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mongodb
+    spec:
+      containers:
+      - args:
+        - mongod
+        - --storageEngine
+        - wiredTiger
+        - --noscripting
+        env:
+        - name: TZ
+          value: Europe/London
+        image: docker.io/mongo:6.0
+        imagePullPolicy: ""
+        name: mongodb
+        ports:
+        - containerPort: 27017
+        resources:
+          limits:
+            memory: "268435456"
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongodb-data
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: mongodb-data
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongodb-data
+  name: mongodb-data
+  namespace: egs-fuellink
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ditto-nginx
+  name: ditto-nginx
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ditto-nginx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: ditto-nginx
+    spec:
+      containers:
+      - image: docker.io/nginx:1.21-alpine
+        imagePullPolicy: ""
+        name: ditto-nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "33554432"
+#          volumeMounts:
+#          - mountPath: /etc/nginx/nginx.conf
+#            name: nginx-claim0
+#            readOnly: true
+#          - mountPath: /etc/nginx/nginx.htpasswd
+#            name: nginx-claim1
+#            readOnly: true
+#          - mountPath: /etc/nginx/nginx-cors.conf
+#            name: nginx-claim2
+#            readOnly: true
+#          - mountPath: /etc/nginx/mime.types
+#            name: nginx-claim3
+#            readOnly: true
+#          - mountPath: /etc/nginx/html/index.html
+#            name: nginx-claim4
+#            readOnly: true
+#          - mountPath: /etc/nginx/html/images
+#            name: nginx-claim5
+#            readOnly: true
+#          - mountPath: /etc/nginx/html/wot
+#            name: nginx-claim6
+#            readOnly: true
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: nginx-htpasswd
+          mountPath: /etc/nginx/nginx.htpasswd
+          subPath: nginx.htpasswd
+        - name: nginx-cors
+          mountPath: /etc/nginx/nginx-cors.conf
+          subPath: nginx-cors.conf
+        - name: nginx-index
+          mountPath: /etc/nginx/html/index.html
+          subPath: index.html
+      restartPolicy: Always
+      serviceAccountName: ""
+#        volumes:
+#        - name: nginx-claim0
+#          persistentVolumeClaim:
+#            claimName: nginx-claim0
+#            readOnly: true
+#        - name: nginx-claim1
+#          persistentVolumeClaim:
+#            claimName: nginx-claim1
+#            readOnly: true
+#        - name: nginx-claim2
+#          persistentVolumeClaim:
+#            claimName: nginx-claim2
+#            readOnly: true
+#        - name: nginx-claim3
+#          persistentVolumeClaim:
+#            claimName: nginx-claim3
+#            readOnly: true
+#        - name: nginx-claim4
+#          persistentVolumeClaim:
+#            claimName: nginx-claim4
+#            readOnly: true
+#        - name: nginx-claim5
+#          persistentVolumeClaim:
+#            claimName: nginx-claim5
+#            readOnly: true
+#        - name: nginx-claim6
+#          persistentVolumeClaim:
+#            claimName: nginx-claim6
+#            readOnly: true
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: ditto-nginx-conf
+      - name: nginx-htpasswd
+        configMap:
+          name: ditto-nginx-htpasswd
+      - name: nginx-cors
+        configMap:
+          name: ditto-nginx-cors
+      - name: nginx-index
+        configMap:
+          name: ditto-nginx-index
+status: {}
+
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim0
+#    name: nginx-claim0
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim1
+#    name: nginx-claim1
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim2
+#    name: nginx-claim2
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim3
+#    name: nginx-claim3
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim4
+#    name: nginx-claim4
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim5
+#    name: nginx-claim5
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: nginx-claim6
+#    name: nginx-claim6
+#    namespace: egs-fuellink
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: policies
+  name: policies
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: policies
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: policies
+    spec:
+      containers:
+      - env:
+        - name: BIND_HOSTNAME
+          value: 0.0.0.0
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ActiveProcessorCount=2 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport
+            -XX:+UseStringDeduplication -Xss512k -XX:MaxRAMPercentage=50 -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=150 -Dpekko.coordinated-shutdown.exit-jvm=on -Dpekko.cluster.shutdown-after-unsuccessful-join-seed-nodes=180s
+            -Dpekko.cluster.failure-detector.threshold=15.0 -Dpekko.cluster.failure-detector.expected-response-after=10s
+            -Dpekko.cluster.failure-detector.acceptable-heartbeat-pause=20s -Dpekko.cluster.downing-provider-class=
+        - name: MONGO_DB_HOSTNAME
+          value: mongodb
+        - name: TZ
+          value: Europe/London
+        image: docker.io/eclipse/ditto-policies:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - curl --fail `hostname`:7626/alive || exit 1
+          failureThreshold: 4
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+        name: policies
+        resources:
+          limits:
+            memory: "536870912"
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+#---
+#- apiVersion: apps/v1
+#  kind: Deployment
+#  metadata:
+#    annotations:
+#      kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+#        -o full-ditto-deployment.yaml
+#      kompose.version: 1.21.0 (992df58d8)
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: swagger-ui
+#    name: swagger-ui
+#  spec:
+#    replicas: 1
+#    selector:
+#      matchLabels:
+#        io.kompose.service: swagger-ui
+#    strategy:
+#      type: Recreate
+#    template:
+#      metadata:
+#        annotations:
+#          kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+#            -o full-ditto-deployment.yaml
+#          kompose.version: 1.21.0 (992df58d8)
+#        creationTimestamp: null
+#        labels:
+#          io.kompose.service: swagger-ui
+#      spec:
+#        containers:
+#        - args:
+#          - nginx
+#          - -g
+#          - daemon off;
+#          env:
+#          - name: QUERY_CONFIG_ENABLED
+#            value: "true"
+#          image: docker.io/swaggerapi/swagger-ui:v5.9.1
+#          imagePullPolicy: ""
+#          name: swagger-ui
+#          resources:
+#            limits:
+#              memory: "33554432"
+#          volumeMounts:
+#          - mountPath: /usr/share/nginx/html/openapi
+#            name: swagger-ui-claim0
+#            readOnly: true
+#          - mountPath: /usr/share/nginx/html/images
+#            name: swagger-ui-claim1
+#            readOnly: true
+#          - mountPath: /usr/share/nginx/html/index.html
+#            name: swagger-ui-claim2
+#            readOnly: true
+#        restartPolicy: Always
+#        serviceAccountName: ""
+#        volumes:
+#        - name: swagger-ui-claim0
+#          persistentVolumeClaim:
+#            claimName: swagger-ui-claim0
+#            readOnly: true
+#        - name: swagger-ui-claim1
+#          persistentVolumeClaim:
+#            claimName: swagger-ui-claim1
+#            readOnly: true
+#        - name: swagger-ui-claim2
+#          persistentVolumeClaim:
+#            claimName: swagger-ui-claim2
+#            readOnly: true
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: swagger-ui-claim0
+#    name: swagger-ui-claim0
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: swagger-ui-claim1
+#    name: swagger-ui-claim1
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+#
+#---
+#- apiVersion: v1
+#  kind: PersistentVolumeClaim
+#  metadata:
+#    creationTimestamp: null
+#    labels:
+#      io.kompose.service: swagger-ui-claim2
+#    name: swagger-ui-claim2
+#  spec:
+#    accessModes:
+#    - ReadOnlyMany
+#    resources:
+#      requests:
+#        storage: 100Mi
+#  status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: things
+  name: things
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: things
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: things
+    spec:
+      containers:
+      - env:
+        - name: BIND_HOSTNAME
+          value: 0.0.0.0
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ActiveProcessorCount=2 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport
+            -XX:+UseStringDeduplication -Xss512k -XX:MaxRAMPercentage=50 -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=150 -Dpekko.coordinated-shutdown.exit-jvm=on -Dpekko.cluster.shutdown-after-unsuccessful-join-seed-nodes=180s
+            -Dpekko.cluster.failure-detector.threshold=15.0 -Dpekko.cluster.failure-detector.expected-response-after=10s
+            -Dpekko.cluster.failure-detector.acceptable-heartbeat-pause=20s -Dpekko.cluster.downing-provider-class=
+        - name: MONGO_DB_HOSTNAME
+          value: mongodb
+        - name: TZ
+          value: Europe/London
+        image: docker.io/eclipse/ditto-things:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - curl --fail `hostname`:7626/alive || exit 1
+          failureThreshold: 4
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+        name: things
+        resources:
+          limits:
+            memory: "536870912"
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+      -o full-ditto-deployment.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: things-search
+  name: things-search
+  namespace: egs-fuellink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: things-search
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f docker-compose-prod.yml
+          -o full-ditto-deployment.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: things-search
+    spec:
+      containers:
+      - env:
+        - name: BIND_HOSTNAME
+          value: 0.0.0.0
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ActiveProcessorCount=2 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport
+            -XX:+UseStringDeduplication -Xss512k -XX:MaxRAMPercentage=50 -XX:+UseG1GC
+            -XX:MaxGCPauseMillis=150 -Dpekko.coordinated-shutdown.exit-jvm=on -Dpekko.cluster.shutdown-after-unsuccessful-join-seed-nodes=180s
+            -Dpekko.cluster.failure-detector.threshold=15.0 -Dpekko.cluster.failure-detector.expected-response-after=10s
+            -Dpekko.cluster.failure-detector.acceptable-heartbeat-pause=20s -Dpekko.cluster.downing-provider-class=
+        - name: MONGO_DB_HOSTNAME
+          value: mongodb
+        - name: TZ
+          value: Europe/London
+        image: docker.io/eclipse/ditto-things-search:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - curl --fail `hostname`:7626/alive || exit 1
+          failureThreshold: 4
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+        name: things-search
+        resources:
+          limits:
+            memory: "536870912"
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+
