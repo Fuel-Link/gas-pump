@@ -28,7 +28,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: gas-pump-mqtt5-config
+          name: gas-pump-mqtt5-config2
       - name: data
         persistentVolumeClaim:
-          claimName: gas-pump-mqtt5-data
+          claimName: gas-pump-mqtt5-data2

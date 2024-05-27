@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: gas-pump-mqtt5-data
+  name: gas-pump-mqtt5-data2
   namespace: egs-fuellink
 spec:
   accessModes:
