@@ -471,3 +471,47 @@ Error:
   "address": "gas-pump_downlink"
 }
 ```
+
+
+```json
+{
+    "processing_time": 106.46,
+    "results": [
+        {
+            "box": {
+                "xmin": 22,
+                "ymin": 84,
+                "xmax": 821,
+                "ymax": 386
+            },
+            "plate": "aa00aa",
+            "region": {
+                "code": "hk",
+                "score": 0.034
+            },
+            "score": 0.897,
+            "candidates": [
+                {
+                    "score": 0.897,
+                    "plate": "aa00aa"
+                }
+            ],
+            "dscore": 0.806,
+            "vehicle": {
+                "score": 0.0,
+                "type": "Unknown",
+                "box": {
+                    "xmin": 0,
+                    "ymin": 0,
+                    "xmax": 0,
+                    "ymax": 0
+                }
+            }
+        }
+    ],
+    "filename": "1410_VbZQQ_matricula.jpg",
+    "version": 1,
+    "camera_id": null,
+    "timestamp": "2024-05-28T14:10:26.848840Z"
+}
+```

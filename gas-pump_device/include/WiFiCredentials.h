@@ -1,4 +1,4 @@
-#define WIFI_CREDENTIALS_MOBILE
+//#define WIFI_CREDENTIALS_MOBILE
 
 #ifdef WIFI_CREDENTIALS_MOBILE
     //! SSID of your internet enabled WiFi network
@@ -6,8 +6,8 @@
     //! Password of your internet enabled WiFi network
     const char WIFI_PASSWORD[] = "open_up90";
     //! IP address of the MQTT broker
-    //const char MQTT_SERVER_IP[] = "192.168.167.79";
-    const char MQTT_SERVER_IP[] = "grupo1-egs-deti.ua.pt";
+    const char MQTT_SERVER_IP[] = "192.168.10.79";
+    //const char MQTT_SERVER_IP[] = "grupo1-egs-deti.ua.pt";
 #else
     //! SSID of your internet enabled WiFi network
     const char WIFI_SSID[] = "familia-silva";
@@ -18,10 +18,9 @@
 #endif
 
 //! Port of the MQTT broker
-//const int MQTT_SERVER_PORT = 8000;
-const int MQTT_SERVER_PORT = 80;
+const int MQTT_SERVER_PORT = 8000;
+const char URI[] = "/";
 
-//const char URI[] = "/";
-
-const char URI[] = "/gas-pump-mqtt5";
+//const int MQTT_SERVER_PORT = 80;
+//const char URI[] = "/gas-pump-mqtt5";
 

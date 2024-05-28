@@ -109,7 +109,7 @@ esp_err_t PumpInteraction::supply_fuel(double &suppliedAmount){
 
     // Wait for the user to stop using the button
     while(digitalRead(PUMP_BUTTON_PIN) == HIGH){
-        suppliedAmount += 0.008;
+        suppliedAmount += 0.0010;
         Serial.print("\r - Supplied amount: " + String(suppliedAmount) + "L");
     }
     Serial.println();
